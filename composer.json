@@ -21,7 +21,8 @@
     "tourze/doctrine-timestamp-bundle": "0.0.*",
     "tourze/wechat-work-bundle": "0.0.*",
     "tourze/wechat-work-media-bundle": "0.0.*",
-    "tourze/easy-admin-attribute": "0.0.*"
+    "tourze/easy-admin-attribute": "0.0.*",
+    "tourze/arrayable": "0.0.*"
   },
   "autoload": {
     "psr-4": {
