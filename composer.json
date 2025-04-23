@@ -16,6 +16,7 @@
     "symfony/framework-bundle": "^6.4",
     "symfony/event-dispatcher": "^6.4",
     "symfony/yaml": "^6.4 || ^7.1",
+    "tourze/http-client-bundle": "0.0.*",
     "tourze/doctrine-snowflake-bundle": "0.0.*",
     "tourze/doctrine-ip-bundle": "0.0.*",
     "tourze/doctrine-timestamp-bundle": "0.0.*",
