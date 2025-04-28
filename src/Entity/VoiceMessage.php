@@ -42,7 +42,7 @@ class VoiceMessage implements AppMessage
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = '0';
+    private ?string $id = null;
 
     /**
      * @var string 图片媒体文件id，可以调用上传临时素材接口获取
