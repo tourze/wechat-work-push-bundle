@@ -7,47 +7,108 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 
 class SafeTraitTest extends TestCase
 {
-    private $subject;
+    private SafeTraitTestClass $testObject;
 
     protected function setUp(): void
     {
-        // 创建一个使用特性的匿名类
-        $this->subject = new class {
-            use SafeTrait;
-        };
+        $this->testObject = new SafeTraitTestClass();
     }
 
-    public function testSafe_defaultsFalse(): void
+    public function test_setSafe_withTrue(): void
     {
-        $this->assertFalse($this->subject->isSafe());
-    }
-
-    public function testSafe_setAndGet(): void
-    {
-        $this->subject->setSafe(true);
-        $this->assertTrue($this->subject->isSafe());
+        $result = $this->testObject->setSafe(true);
         
-        $this->subject->setSafe(false);
-        $this->assertFalse($this->subject->isSafe());
+        $this->assertSame($this->testObject, $result);
+        $this->assertTrue($this->testObject->isSafe());
     }
 
-    public function testGetSafeArray_whenSafeIsDisabled(): void
+    public function test_setSafe_withFalse(): void
     {
-        $this->subject->setSafe(false);
-        $array = $this->subject->getSafeArray();
+        $result = $this->testObject->setSafe(false);
         
-        $this->assertIsArray($array);
-        $this->assertArrayHasKey('safe', $array);
-        $this->assertEquals(0, $array['safe']);
+        $this->assertSame($this->testObject, $result);
+        $this->assertFalse($this->testObject->isSafe());
     }
 
-    public function testGetSafeArray_whenSafeIsEnabled(): void
+    public function test_setSafe_withNull(): void
     {
-        $this->subject->setSafe(true);
-        $array = $this->subject->getSafeArray();
-        
-        $this->assertIsArray($array);
-        $this->assertArrayHasKey('safe', $array);
-        $this->assertEquals(1, $array['safe']);
+        $this->testObject->setSafe(null);
+        $this->assertNull($this->testObject->isSafe());
     }
+
+    public function test_getSafeArray_withTrue(): void
+    {
+        $this->testObject->setSafe(true);
+        
+        $expectedArray = [
+            'safe' => 1
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getSafeArray());
+    }
+
+    public function test_getSafeArray_withFalse(): void
+    {
+        $this->testObject->setSafe(false);
+        
+        $expectedArray = [
+            'safe' => 0
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getSafeArray());
+    }
+
+    public function test_getSafeArray_withNull(): void
+    {
+        $this->testObject->setSafe(null);
+        
+        $expectedArray = [
+            'safe' => 0
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getSafeArray());
+    }
+
+    public function test_getSafeArray_withDefaultValue(): void
+    {
+        // 未设置 safe 时的默认行为（默认为 false）
+        $expectedArray = [
+            'safe' => 0
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getSafeArray());
+    }
+
+    public function test_edgeCases_toggleSafeValue(): void
+    {
+        // 测试多次切换 safe 值
+        $this->testObject->setSafe(true);
+        $this->assertTrue($this->testObject->isSafe());
+        
+        $this->testObject->setSafe(false);
+        $this->assertFalse($this->testObject->isSafe());
+        
+        $this->testObject->setSafe(true);
+        $this->assertTrue($this->testObject->isSafe());
+    }
+
+    public function test_fluentInterface(): void
+    {
+        // 测试流畅接口
+        $result = $this->testObject
+            ->setSafe(true)
+            ->setSafe(false)
+            ->setSafe(true);
+        
+        $this->assertSame($this->testObject, $result);
+        $this->assertTrue($this->testObject->isSafe());
+    }
+}
+
+/**
+ * 用于测试 SafeTrait 的具体实现类
+ */
+class SafeTraitTestClass
+{
+    use SafeTrait;
 } 

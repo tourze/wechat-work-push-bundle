@@ -26,6 +26,7 @@
     "tourze/easy-admin-attribute": "0.1.*",
     "tourze/http-client-bundle": "0.1.*",
     "tourze/wechat-work-bundle": "0.1.*",
+    "tourze/wechat-work-contracts": "0.0.*",
     "tourze/wechat-work-media-bundle": "0.1.*"
   },
   "require-dev": {

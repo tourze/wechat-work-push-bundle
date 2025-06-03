@@ -7,76 +7,168 @@ use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 
 class DuplicateCheckTraitTest extends TestCase
 {
-    private $subject;
+    private DuplicateCheckTraitTestClass $testObject;
 
     protected function setUp(): void
     {
-        // 创建一个使用特性的匿名类
-        $this->subject = new class {
-            use DuplicateCheckTrait;
-        };
+        $this->testObject = new DuplicateCheckTraitTestClass();
     }
 
-    public function testEnableDuplicateCheck_defaultsFalse(): void
+    public function test_setEnableDuplicateCheck_withTrue(): void
     {
-        $this->assertFalse($this->subject->isEnableDuplicateCheck());
-    }
-
-    public function testEnableDuplicateCheck_setAndGet(): void
-    {
-        $this->subject->setEnableDuplicateCheck(true);
-        $this->assertTrue($this->subject->isEnableDuplicateCheck());
+        $result = $this->testObject->setEnableDuplicateCheck(true);
         
-        $this->subject->setEnableDuplicateCheck(false);
-        $this->assertFalse($this->subject->isEnableDuplicateCheck());
+        $this->assertSame($this->testObject, $result);
+        $this->assertTrue($this->testObject->isEnableDuplicateCheck());
     }
 
-    public function testDuplicateCheckInterval_defaultsTo1800(): void
+    public function test_setEnableDuplicateCheck_withFalse(): void
     {
-        $this->assertEquals(1800, $this->subject->getDuplicateCheckInterval());
+        $result = $this->testObject->setEnableDuplicateCheck(false);
+        
+        $this->assertSame($this->testObject, $result);
+        $this->assertFalse($this->testObject->isEnableDuplicateCheck());
     }
 
-    public function testDuplicateCheckInterval_setAndGet(): void
+    public function test_setEnableDuplicateCheck_withNull(): void
+    {
+        $this->testObject->setEnableDuplicateCheck(null);
+        $this->assertNull($this->testObject->isEnableDuplicateCheck());
+    }
+
+    public function test_setDuplicateCheckInterval_withValidInterval(): void
     {
         $interval = 3600;
-        $this->subject->setDuplicateCheckInterval($interval);
-        $this->assertEquals($interval, $this->subject->getDuplicateCheckInterval());
+        $result = $this->testObject->setDuplicateCheckInterval($interval);
+        
+        $this->assertSame($this->testObject, $result);
+        $this->assertEquals($interval, $this->testObject->getDuplicateCheckInterval());
     }
 
-    public function testGetDuplicateCheckArray_whenDuplicateCheckIsDisabled(): void
+    public function test_setDuplicateCheckInterval_withNull(): void
     {
-        $this->subject->setEnableDuplicateCheck(false);
-        $array = $this->subject->getDuplicateCheckArray();
-        
-        $this->assertIsArray($array);
-        $this->assertArrayHasKey('enable_duplicate_check', $array);
-        $this->assertEquals(0, $array['enable_duplicate_check']);
-        $this->assertArrayHasKey('duplicate_check_interval', $array);
-        $this->assertEquals(1800, $array['duplicate_check_interval']);
+        $this->testObject->setDuplicateCheckInterval(null);
+        $this->assertNull($this->testObject->getDuplicateCheckInterval());
     }
 
-    public function testGetDuplicateCheckArray_whenDuplicateCheckIsEnabled(): void
+    public function test_setDuplicateCheckInterval_withZero(): void
     {
-        $this->subject->setEnableDuplicateCheck(true);
-        $this->subject->setDuplicateCheckInterval(3600);
-        $array = $this->subject->getDuplicateCheckArray();
-        
-        $this->assertIsArray($array);
-        $this->assertArrayHasKey('enable_duplicate_check', $array);
-        $this->assertEquals(1, $array['enable_duplicate_check']);
-        $this->assertArrayHasKey('duplicate_check_interval', $array);
-        $this->assertEquals(3600, $array['duplicate_check_interval']);
+        $this->testObject->setDuplicateCheckInterval(0);
+        $this->assertEquals(0, $this->testObject->getDuplicateCheckInterval());
     }
 
-    public function testGetDuplicateCheckArray_withDefaultInterval(): void
+    public function test_setDuplicateCheckInterval_withMaxValue(): void
     {
-        $this->subject->setEnableDuplicateCheck(true);
-        $array = $this->subject->getDuplicateCheckArray();
-        
-        $this->assertIsArray($array);
-        $this->assertArrayHasKey('enable_duplicate_check', $array);
-        $this->assertEquals(1, $array['enable_duplicate_check']);
-        $this->assertArrayHasKey('duplicate_check_interval', $array);
-        $this->assertEquals(1800, $array['duplicate_check_interval']);
+        $maxInterval = 604800; // 7天
+        $this->testObject->setDuplicateCheckInterval($maxInterval);
+        $this->assertEquals($maxInterval, $this->testObject->getDuplicateCheckInterval());
     }
+
+    public function test_getDuplicateCheckArray_withEnabledTrue(): void
+    {
+        $this->testObject->setEnableDuplicateCheck(true);
+        $this->testObject->setDuplicateCheckInterval(3600);
+        
+        $expectedArray = [
+            'enable_duplicate_check' => 1,
+            'duplicate_check_interval' => 3600
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getDuplicateCheckArray());
+    }
+
+    public function test_getDuplicateCheckArray_withEnabledFalse(): void
+    {
+        $this->testObject->setEnableDuplicateCheck(false);
+        $this->testObject->setDuplicateCheckInterval(3600);
+        
+        $expectedArray = [
+            'enable_duplicate_check' => 0,
+            'duplicate_check_interval' => 3600
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getDuplicateCheckArray());
+    }
+
+    public function test_getDuplicateCheckArray_withNullEnabled(): void
+    {
+        $this->testObject->setEnableDuplicateCheck(null);
+        $this->testObject->setDuplicateCheckInterval(1800);
+        
+        $expectedArray = [
+            'enable_duplicate_check' => 0,
+            'duplicate_check_interval' => 1800
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getDuplicateCheckArray());
+    }
+
+    public function test_getDuplicateCheckArray_withDefaultValues(): void
+    {
+        // 测试默认值：enable_duplicate_check = false, duplicate_check_interval = 1800
+        $expectedArray = [
+            'enable_duplicate_check' => 0,
+            'duplicate_check_interval' => 1800
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getDuplicateCheckArray());
+    }
+
+    public function test_getDuplicateCheckArray_withNullInterval(): void
+    {
+        $this->testObject->setEnableDuplicateCheck(true);
+        $this->testObject->setDuplicateCheckInterval(null);
+        
+        $expectedArray = [
+            'enable_duplicate_check' => 1,
+            'duplicate_check_interval' => null
+        ];
+        
+        $this->assertEquals($expectedArray, $this->testObject->getDuplicateCheckArray());
+    }
+
+    public function test_edgeCases_minInterval(): void
+    {
+        $this->testObject->setDuplicateCheckInterval(1);
+        $this->assertEquals(1, $this->testObject->getDuplicateCheckInterval());
+    }
+
+    public function test_edgeCases_largeInterval(): void
+    {
+        $largeInterval = 999999;
+        $this->testObject->setDuplicateCheckInterval($largeInterval);
+        $this->assertEquals($largeInterval, $this->testObject->getDuplicateCheckInterval());
+    }
+
+    public function test_fluentInterface(): void
+    {
+        $result = $this->testObject
+            ->setEnableDuplicateCheck(true)
+            ->setDuplicateCheckInterval(7200);
+        
+        $this->assertSame($this->testObject, $result);
+        $this->assertTrue($this->testObject->isEnableDuplicateCheck());
+        $this->assertEquals(7200, $this->testObject->getDuplicateCheckInterval());
+    }
+
+    public function test_toggleEnabledState(): void
+    {
+        // 测试多次切换启用状态
+        $this->testObject->setEnableDuplicateCheck(true);
+        $this->assertTrue($this->testObject->isEnableDuplicateCheck());
+        
+        $this->testObject->setEnableDuplicateCheck(false);
+        $this->assertFalse($this->testObject->isEnableDuplicateCheck());
+        
+        $this->testObject->setEnableDuplicateCheck(true);
+        $this->assertTrue($this->testObject->isEnableDuplicateCheck());
+    }
+}
+
+/**
+ * 用于测试 DuplicateCheckTrait 的具体实现类
+ */
+class DuplicateCheckTraitTestClass
+{
+    use DuplicateCheckTrait;
 } 

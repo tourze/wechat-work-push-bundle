@@ -6,18 +6,18 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use Tourze\EasyAdmin\Attribute\Field\FormField;
-use WechatWorkBundle\Entity\Agent;
+use Tourze\WechatWorkContracts\AgentInterface;
 
 trait AgentTrait
 {
     /**
-     * @var Agent 关联的应用
+     * @var AgentInterface 关联的应用
      */
     #[ListColumn(title: '应用')]
     #[FormField(title: '应用')]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private Agent $agent;
+    private AgentInterface $agent;
 
     /**
      * @var string|null 消息ID
@@ -52,12 +52,12 @@ trait AgentTrait
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '指定接收消息的标签'])]
     private ?array $toTag = null;
 
-    public function getAgent(): Agent
+    public function getAgent(): AgentInterface
     {
         return $this->agent;
     }
 
-    public function setAgent(Agent $agent): static
+    public function setAgent(AgentInterface $agent): static
     {
         $this->agent = $agent;
 
