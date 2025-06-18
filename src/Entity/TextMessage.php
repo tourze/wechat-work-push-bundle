@@ -11,11 +11,6 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\TextMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
@@ -26,8 +21,6 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#文本消息
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: TextMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_text_message', options: ['comment' => '文本消息'])]
 class TextMessage implements AppMessage, AdminArrayInterface
@@ -38,8 +31,6 @@ class TextMessage implements AppMessage, AdminArrayInterface
     use IdTransTrait;
     use DuplicateCheckTrait;
 
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
@@ -49,8 +40,6 @@ class TextMessage implements AppMessage, AdminArrayInterface
     /**
      * @var string 最长不超过2048个字节，超过将截断（支持id转译）
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 2048, options: ['comment' => '消息内容'])]
     private string $content;
 

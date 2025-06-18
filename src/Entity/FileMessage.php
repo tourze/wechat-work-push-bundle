@@ -10,10 +10,6 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\FileMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
@@ -23,8 +19,6 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#文件消息
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: FileMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_file_message', options: ['comment' => '文件消息'])]
 class FileMessage implements AppMessage
@@ -34,8 +28,6 @@ class FileMessage implements AppMessage
     use SafeTrait;
     use DuplicateCheckTrait;
 
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]

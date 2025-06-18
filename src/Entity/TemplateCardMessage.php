@@ -11,9 +11,6 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
@@ -35,29 +32,21 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
     /**
      * @var string 标题，不超过128个字节，超过会自动截断
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 128, options: ['comment' => '标题'])]
     protected string $title;
 
     /**
      * @var string 描述，不超过512个字节，超过会自动截断
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 512, options: ['comment' => '描述'])]
     protected string $description;
 
     /**
      * @var string|null 任务id，同一个应用发送的任务id不能重复，只能由数字、字母和"_-@"组成，最长128字节
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '任务id'])]
     protected ?string $taskId = null;
 
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]

@@ -4,8 +4,6 @@ namespace WechatWorkPushBundle\Traits;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
 use Tourze\WechatWorkContracts\AgentInterface;
 
 trait AgentTrait
@@ -13,8 +11,6 @@ trait AgentTrait
     /**
      * @var AgentInterface 关联的应用
      */
-    #[ListColumn(title: '应用')]
-    #[FormField(title: '应用')]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private AgentInterface $agent;
@@ -29,8 +25,6 @@ trait AgentTrait
      * @var array|null 成员ID列表（多个接收者用‘|’分隔，最多支持1000个）。
      *                 特殊情况：指定为"@all"，则向该企业应用的全部成员发送
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '指定接收消息的成员'])]
     private ?array $toUser = null;
 
@@ -38,8 +32,6 @@ trait AgentTrait
      * @var array|null 部门ID列表，多个接收者用‘|’分隔，最多支持100个。
      *                 当touser为"@all"时忽略本参数
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '指定接收消息的部门'])]
     private ?array $toParty = null;
 
@@ -47,8 +39,6 @@ trait AgentTrait
      * @var array|null 标签ID列表，多个接收者用‘|’分隔，最多支持100个。
      *                 当touser为"@all"时忽略本参数
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '指定接收消息的标签'])]
     private ?array $toTag = null;
 

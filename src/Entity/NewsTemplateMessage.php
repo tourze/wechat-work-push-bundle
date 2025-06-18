@@ -3,10 +3,6 @@
 namespace WechatWorkPushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
 use WechatWorkPushBundle\Repository\NewsTemplateMessageRepository;
 
 /**
@@ -14,8 +10,6 @@ use WechatWorkPushBundle\Repository\NewsTemplateMessageRepository;
  *
  * @see https://developer.work.weixin.qq.com/document/path/96458#图文展示型
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: NewsTemplateMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_news_template_message', options: ['comment' => '图文展示型模板卡片消息'])]
 class NewsTemplateMessage extends TemplateCardMessage
@@ -23,24 +17,18 @@ class NewsTemplateMessage extends TemplateCardMessage
     /**
      * @var string 点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 2048, options: ['comment' => '跳转链接'])]
     private string $url;
 
     /**
      * @var string 图片的url
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 2048, options: ['comment' => '图片链接'])]
     private string $imageUrl;
 
     /**
      * @var string|null 底部按钮文字，默认为"详情"
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 64, nullable: true, options: ['comment' => '底部按钮文字'])]
     private ?string $btnText = null;
 

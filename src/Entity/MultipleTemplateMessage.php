@@ -4,10 +4,6 @@ namespace WechatWorkPushBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
 use WechatWorkPushBundle\Repository\MultipleTemplateMessageRepository;
 
 /**
@@ -15,8 +11,6 @@ use WechatWorkPushBundle\Repository\MultipleTemplateMessageRepository;
  *
  * @see https://developer.work.weixin.qq.com/document/path/96458#多项选择型
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: MultipleTemplateMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_multiple_template_message', options: ['comment' => '多项选择型模板卡片消息'])]
 class MultipleTemplateMessage extends TemplateCardMessage
@@ -24,16 +18,12 @@ class MultipleTemplateMessage extends TemplateCardMessage
     /**
      * @var string 选择题key值，用户提交选项后，会产生回调事件，回调事件会带上该key值表示该题，最长支持128字节
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 128, options: ['comment' => '选择题key'])]
     private string $questionKey;
 
     /**
      * @var array 选项列表，最多4个选项，json格式，如：[{"id": "1", "text": "选项1"}, {"id": "2", "text": "选项2"}]
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(type: Types::JSON, options: ['comment' => '选项列表'])]
     private array $options;
 

@@ -10,10 +10,6 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\MiniProgramNoticeMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
@@ -28,8 +24,6 @@ use WechatWorkPushBundle\Traits\IdTransTrait;
  *
  * @see https://developer.work.weixin.qq.com/document/path/96458#小程序通知消息
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: MiniProgramNoticeMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_mini_program_notice_message', options: ['comment' => '小程序通知消息'])]
 class MiniProgramNoticeMessage implements AppMessage
@@ -39,8 +33,6 @@ class MiniProgramNoticeMessage implements AppMessage
     use IdTransTrait;
     use DuplicateCheckTrait;
 
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]

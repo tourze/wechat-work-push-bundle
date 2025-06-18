@@ -10,10 +10,6 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\MarkdownMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
@@ -22,8 +18,6 @@ use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#markdown消息
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: MarkdownMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_markdown_message', options: ['comment' => 'markdown消息'])]
 class MarkdownMessage implements AppMessage
@@ -32,8 +26,6 @@ class MarkdownMessage implements AppMessage
     use AgentTrait;
     use DuplicateCheckTrait;
 
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]

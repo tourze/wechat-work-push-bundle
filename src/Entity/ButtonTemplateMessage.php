@@ -3,10 +3,6 @@
 namespace WechatWorkPushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
 use WechatWorkPushBundle\Repository\ButtonTemplateMessageRepository;
 
 /**
@@ -14,8 +10,6 @@ use WechatWorkPushBundle\Repository\ButtonTemplateMessageRepository;
  *
  * @see https://developer.work.weixin.qq.com/document/path/96458#按钮交互型
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: ButtonTemplateMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_button_template_message', options: ['comment' => '按钮交互型模板卡片消息'])]
 class ButtonTemplateMessage extends TemplateCardMessage
@@ -23,24 +17,18 @@ class ButtonTemplateMessage extends TemplateCardMessage
     /**
      * @var string 点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 2048, options: ['comment' => '跳转链接'])]
     private string $url;
 
     /**
      * @var string 按钮文案，建议不超过10个字
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 32, options: ['comment' => '按钮文案'])]
     private string $buttonText;
 
     /**
      * @var string|null 点击按钮后返回给企业微信的回调key，最长128字节
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '按钮key'])]
     private ?string $buttonKey = null;
 

@@ -12,12 +12,7 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use Tourze\EasyAdmin\Attribute\Column\PictureColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
 use Tourze\EasyAdmin\Attribute\Field\ImagePickerField;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\MpnewsMessageRepository;
@@ -28,8 +23,6 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#图文消息（mpnews）
  */
-#[Deletable]
-#[Creatable]
 #[ORM\Entity(repositoryClass: MpnewsMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_mpnews_message', options: ['comment' => '图文消息（mpnews）'])]
 class MpnewsMessage implements AppMessage, AdminArrayInterface
@@ -39,8 +32,6 @@ class MpnewsMessage implements AppMessage, AdminArrayInterface
     use SafeTrait;
     use DuplicateCheckTrait;
 
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
@@ -66,8 +57,6 @@ class MpnewsMessage implements AppMessage, AdminArrayInterface
     /**
      * @var string 标题，不超过128个字节，超过会自动截断（支持id转译）
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '标题'])]
     private string $title;
 
@@ -76,15 +65,11 @@ class MpnewsMessage implements AppMessage, AdminArrayInterface
      *
      * @var string 图文消息的内容，支持html标签，不超过666 K个字节（支持id转译）
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '内容'])]
     private string $content;
 
     #[ImagePickerField]
     #[PictureColumn]
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 2048, nullable: true, options: ['comment' => '图文消息缩略图的url'])]
     private string $thumbMediaUrl;
 
@@ -97,16 +82,12 @@ class MpnewsMessage implements AppMessage, AdminArrayInterface
     /**
      * @var ?string 图文消息的描述，不超过512个字节，超过会自动截断（支持id转译）
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 512, nullable: true, options: ['comment' => '描述'])]
     private ?string $digest = null;
 
     /**
      * @var ?string 图文消息点击“阅读原文”之后的页面链接
      */
-    #[ListColumn]
-    #[FormField]
     #[ORM\Column(length: 2048, nullable: true, options: ['comment' => '点击“阅读原文”之后的页面链接'])]
     private ?string $contentSourceUrl = null;
 
