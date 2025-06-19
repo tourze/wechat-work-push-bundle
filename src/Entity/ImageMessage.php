@@ -22,7 +22,7 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 #[ORM\Entity(repositoryClass: ImageMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_image_message', options: ['comment' => '图片消息'])]
 class ImageMessage implements AppMessage
-{
+, \Stringable{
     use TimestampableAware;
     use AgentTrait;
     use SafeTrait;
@@ -135,5 +135,10 @@ class ImageMessage implements AppMessage
                 'media_id' => $this->getMediaId(),
             ],
         ];
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }

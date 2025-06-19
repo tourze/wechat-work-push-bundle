@@ -99,4 +99,9 @@ class TextNoticeTemplateMessage extends TemplateCardMessage
     {
         return 'text_notice';
     }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
+    }
 }

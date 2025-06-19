@@ -22,7 +22,7 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 #[ORM\Entity(repositoryClass: FileMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_file_message', options: ['comment' => '文件消息'])]
 class FileMessage implements AppMessage
-{
+, \Stringable{
     use TimestampableAware;
     use AgentTrait;
     use SafeTrait;
@@ -135,5 +135,10 @@ class FileMessage implements AppMessage
                 'media_id' => $this->getMediaId(),
             ],
         ];
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }

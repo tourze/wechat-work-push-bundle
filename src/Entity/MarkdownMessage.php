@@ -21,7 +21,7 @@ use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 #[ORM\Entity(repositoryClass: MarkdownMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_markdown_message', options: ['comment' => 'markdown消息'])]
 class MarkdownMessage implements AppMessage
-{
+, \Stringable{
     use TimestampableAware;
     use AgentTrait;
     use DuplicateCheckTrait;
@@ -132,5 +132,10 @@ class MarkdownMessage implements AppMessage
                 'content' => $this->getContent(),
             ],
         ];
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }

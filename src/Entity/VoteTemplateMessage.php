@@ -93,4 +93,9 @@ class VoteTemplateMessage extends TemplateCardMessage
     {
         return 'vote_interaction';
     }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
+    }
 }

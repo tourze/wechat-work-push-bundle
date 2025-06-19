@@ -27,7 +27,7 @@ use WechatWorkPushBundle\Traits\IdTransTrait;
 #[ORM\Entity(repositoryClass: MiniProgramNoticeMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_mini_program_notice_message', options: ['comment' => '小程序通知消息'])]
 class MiniProgramNoticeMessage implements AppMessage
-{
+, \Stringable{
     use TimestampableAware;
     use AgentTrait;
     use IdTransTrait;
@@ -223,5 +223,10 @@ class MiniProgramNoticeMessage implements AppMessage
             'msgtype' => $this->getMsgType(),
             'miniprogram_notice' => $notice,
         ];
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }

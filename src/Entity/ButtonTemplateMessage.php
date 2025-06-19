@@ -120,4 +120,9 @@ class ButtonTemplateMessage extends TemplateCardMessage
     {
         return 'button_interaction';
     }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
+    }
 }

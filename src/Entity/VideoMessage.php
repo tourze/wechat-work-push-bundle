@@ -22,7 +22,7 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 #[ORM\Entity(repositoryClass: VideoMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_video_message', options: ['comment' => '视频消息'])]
 class VideoMessage implements AppMessage
-{
+, \Stringable{
     use TimestampableAware;
     use AgentTrait;
     use SafeTrait;
@@ -175,5 +175,10 @@ class VideoMessage implements AppMessage
             'msgtype' => $this->getMsgType(),
             'video' => $video,
         ];
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }

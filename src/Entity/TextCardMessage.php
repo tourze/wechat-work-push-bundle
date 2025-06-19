@@ -22,7 +22,7 @@ use WechatWorkPushBundle\Traits\IdTransTrait;
 #[ORM\Entity(repositoryClass: TextCardMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_text_card_message', options: ['comment' => '文本卡片消息'])]
 class TextCardMessage implements AppMessage
-{
+, \Stringable{
     use TimestampableAware;
     use AgentTrait;
     use IdTransTrait;
@@ -178,5 +178,10 @@ class TextCardMessage implements AppMessage
             'msgtype' => $this->getMsgType(),
             'textcard' => $textcard,
         ];
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }

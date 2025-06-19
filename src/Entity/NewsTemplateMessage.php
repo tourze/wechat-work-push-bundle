@@ -123,4 +123,9 @@ class NewsTemplateMessage extends TemplateCardMessage
     {
         return 'news_notice';
     }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
+    }
 }

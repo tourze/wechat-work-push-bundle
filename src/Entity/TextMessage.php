@@ -24,7 +24,7 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 #[ORM\Entity(repositoryClass: TextMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_text_message', options: ['comment' => '文本消息'])]
 class TextMessage implements AppMessage, AdminArrayInterface
-{
+, \Stringable{
     use TimestampableAware;
     use AgentTrait;
     use SafeTrait;
@@ -150,5 +150,10 @@ class TextMessage implements AppMessage, AdminArrayInterface
             'updateTime' => $this->getUpdateTime()?->format('Y-m-d H:i:s'),
             ...$this->getAgentArray(),
         ];
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getId();
     }
 }
