@@ -35,7 +35,7 @@ class NewsMessageTest extends TestCase
     {
         $title = '这是新闻标题';
         $this->newsMessage->setTitle($title);
-        
+
         $this->assertEquals($title, $this->newsMessage->getTitle());
     }
 
@@ -43,7 +43,7 @@ class NewsMessageTest extends TestCase
     {
         $title = str_repeat('标', 64); // 最大长度128字节，每个中文字符2字节
         $this->newsMessage->setTitle($title);
-        
+
         $this->assertEquals($title, $this->newsMessage->getTitle());
     }
 
@@ -51,7 +51,7 @@ class NewsMessageTest extends TestCase
     {
         $description = '这是新闻描述内容';
         $this->newsMessage->setDescription($description);
-        
+
         $this->assertEquals($description, $this->newsMessage->getDescription());
     }
 
@@ -65,7 +65,7 @@ class NewsMessageTest extends TestCase
     {
         $description = str_repeat('描', 256); // 最大长度512字节
         $this->newsMessage->setDescription($description);
-        
+
         $this->assertEquals($description, $this->newsMessage->getDescription());
     }
 
@@ -73,7 +73,7 @@ class NewsMessageTest extends TestCase
     {
         $url = 'https://example.com/news/123';
         $this->newsMessage->setUrl($url);
-        
+
         $this->assertEquals($url, $this->newsMessage->getUrl());
     }
 
@@ -87,7 +87,7 @@ class NewsMessageTest extends TestCase
     {
         $url = 'https://example.com/' . str_repeat('path/', 100);
         $this->newsMessage->setUrl($url);
-        
+
         $this->assertEquals($url, $this->newsMessage->getUrl());
     }
 
@@ -95,7 +95,7 @@ class NewsMessageTest extends TestCase
     {
         $picUrl = 'https://example.com/image.jpg';
         $this->newsMessage->setPicUrl($picUrl);
-        
+
         $this->assertEquals($picUrl, $this->newsMessage->getPicUrl());
     }
 
@@ -109,7 +109,7 @@ class NewsMessageTest extends TestCase
     {
         $appId = 'wx123456789abcdef';
         $this->newsMessage->setAppId($appId);
-        
+
         $this->assertEquals($appId, $this->newsMessage->getAppId());
     }
 
@@ -123,7 +123,7 @@ class NewsMessageTest extends TestCase
     {
         $pagePath = 'pages/index/index';
         $this->newsMessage->setPagePath($pagePath);
-        
+
         $this->assertEquals($pagePath, $this->newsMessage->getPagePath());
     }
 
@@ -137,15 +137,15 @@ class NewsMessageTest extends TestCase
     {
         $dateTime = new \DateTime('2024-01-01 12:00:00');
         $this->newsMessage->setCreateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->newsMessage->getCreateTime());
     }
 
     public function test_setUpdateTime_withDateTime(): void
     {
-        $dateTime = new \DateTime('2024-01-02 15:30:00');
+        $dateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
         $this->newsMessage->setUpdateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->newsMessage->getUpdateTime());
     }
 
@@ -153,7 +153,7 @@ class NewsMessageTest extends TestCase
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Test News');
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'safe' => 0,
@@ -168,7 +168,7 @@ class NewsMessageTest extends TestCase
                 ]
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $this->newsMessage->toRequestArray());
     }
 
@@ -179,7 +179,7 @@ class NewsMessageTest extends TestCase
         $this->newsMessage->setDescription('News description');
         $this->newsMessage->setUrl('https://example.com/news');
         $this->newsMessage->setPicUrl('https://example.com/pic.jpg');
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'safe' => 0,
@@ -197,7 +197,7 @@ class NewsMessageTest extends TestCase
                 ]
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $this->newsMessage->toRequestArray());
     }
 
@@ -207,7 +207,7 @@ class NewsMessageTest extends TestCase
         $this->newsMessage->setTitle('Mini Program News');
         $this->newsMessage->setAppId('wx123456789');
         $this->newsMessage->setPagePath('pages/news/detail');
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'safe' => 0,
@@ -224,7 +224,7 @@ class NewsMessageTest extends TestCase
                 ]
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $this->newsMessage->toRequestArray());
     }
 
@@ -233,9 +233,9 @@ class NewsMessageTest extends TestCase
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('User News');
         $this->newsMessage->setToUser(['user1', 'user2']);
-        
+
         $result = $this->newsMessage->toRequestArray();
-        
+
         $this->assertArrayHasKey('touser', $result);
         $this->assertEquals('user1|user2', $result['touser']);
     }
@@ -245,9 +245,9 @@ class NewsMessageTest extends TestCase
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Secret News');
         $this->newsMessage->setSafe(true);
-        
+
         $result = $this->newsMessage->toRequestArray();
-        
+
         $this->assertEquals(1, $result['safe']);
     }
 
@@ -260,12 +260,12 @@ class NewsMessageTest extends TestCase
         $this->newsMessage->setPicUrl('https://admin.example.com/pic.jpg');
         $this->newsMessage->setAppId('wx987654321');
         $this->newsMessage->setPagePath('pages/admin');
-        
-        $createTime = new \DateTime('2024-01-01 10:00:00');
-        $updateTime = new \DateTime('2024-01-01 11:00:00');
+
+        $createTime = new \DateTimeImmutable('2024-01-01 10:00:00');
+        $updateTime = new \DateTimeImmutable('2024-01-01 11:00:00');
         $this->newsMessage->setCreateTime($createTime);
         $this->newsMessage->setUpdateTime($updateTime);
-        
+
         $expectedArray = [
             'id' => null,
             'title' => 'Admin News',
@@ -278,7 +278,7 @@ class NewsMessageTest extends TestCase
             'updateTime' => '2024-01-01 11:00:00',
             'agentid' => '1000002'
         ];
-        
+
         $this->assertEquals($expectedArray, $this->newsMessage->retrieveAdminArray());
     }
 
@@ -286,9 +286,9 @@ class NewsMessageTest extends TestCase
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Minimal News');
-        
+
         $result = $this->newsMessage->retrieveAdminArray();
-        
+
         $this->assertEquals('Minimal News', $result['title']);
         $this->assertNull($result['description']);
         $this->assertNull($result['url']);
@@ -303,12 +303,12 @@ class NewsMessageTest extends TestCase
     {
         $userId = 'user123';
         $ip = '192.168.1.1';
-        
+
         $this->newsMessage->setCreatedBy($userId);
         $this->newsMessage->setUpdatedBy($userId);
         $this->newsMessage->setCreatedFromIp($ip);
         $this->newsMessage->setUpdatedFromIp($ip);
-        
+
         $this->assertEquals($userId, $this->newsMessage->getCreatedBy());
         $this->assertEquals($userId, $this->newsMessage->getUpdatedBy());
         $this->assertEquals($ip, $this->newsMessage->getCreatedFromIp());
@@ -320,7 +320,7 @@ class NewsMessageTest extends TestCase
         $this->newsMessage->setTitle('');
         $this->newsMessage->setDescription('');
         $this->newsMessage->setUrl('');
-        
+
         $this->assertEquals('', $this->newsMessage->getTitle());
         $this->assertEquals('', $this->newsMessage->getDescription());
         $this->assertEquals('', $this->newsMessage->getUrl());
@@ -332,7 +332,7 @@ class NewsMessageTest extends TestCase
         $this->newsMessage->setToUser(['user1', 'user2']);
         $this->newsMessage->setToParty(['dept1']);
         $this->newsMessage->setToTag(['tag1']);
-        
+
         $this->assertSame($this->mockAgent, $this->newsMessage->getAgent());
         $this->assertEquals(['user1', 'user2'], $this->newsMessage->getToUser());
         $this->assertEquals(['dept1'], $this->newsMessage->getToParty());
@@ -343,8 +343,8 @@ class NewsMessageTest extends TestCase
     {
         $msgId = 'msg_news_123456';
         $result = $this->newsMessage->setMsgId($msgId);
-        
+
         $this->assertSame($this->newsMessage, $result);
         $this->assertEquals($msgId, $this->newsMessage->getMsgId());
     }
-} 
+}

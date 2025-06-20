@@ -35,7 +35,7 @@ class VideoMessageTest extends TestCase
     {
         $mediaId = 'video_12345678901234567890';
         $result = $this->videoMessage->setMediaId($mediaId);
-        
+
         $this->assertSame($this->videoMessage, $result);
         $this->assertEquals($mediaId, $this->videoMessage->getMediaId());
     }
@@ -44,7 +44,7 @@ class VideoMessageTest extends TestCase
     {
         $title = '这是视频标题';
         $this->videoMessage->setTitle($title);
-        
+
         $this->assertEquals($title, $this->videoMessage->getTitle());
     }
 
@@ -58,7 +58,7 @@ class VideoMessageTest extends TestCase
     {
         $title = str_repeat('标', 42); // 最大长度128字节，每个中文字符约3字节
         $this->videoMessage->setTitle($title);
-        
+
         $this->assertEquals($title, $this->videoMessage->getTitle());
     }
 
@@ -66,7 +66,7 @@ class VideoMessageTest extends TestCase
     {
         $description = '这是视频描述内容';
         $this->videoMessage->setDescription($description);
-        
+
         $this->assertEquals($description, $this->videoMessage->getDescription());
     }
 
@@ -80,23 +80,23 @@ class VideoMessageTest extends TestCase
     {
         $description = str_repeat('描', 170); // 最大长度512字节
         $this->videoMessage->setDescription($description);
-        
+
         $this->assertEquals($description, $this->videoMessage->getDescription());
     }
 
     public function test_setCreateTime_withDateTime(): void
     {
-        $dateTime = new \DateTime('2024-01-01 12:00:00');
+        $dateTime = new \DateTimeImmutable('2024-01-01 12:00:00');
         $this->videoMessage->setCreateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->videoMessage->getCreateTime());
     }
 
     public function test_setUpdateTime_withDateTime(): void
     {
-        $dateTime = new \DateTime('2024-01-02 15:30:00');
+        $dateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
         $this->videoMessage->setUpdateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->videoMessage->getUpdateTime());
     }
 
@@ -104,7 +104,7 @@ class VideoMessageTest extends TestCase
     {
         $this->videoMessage->setAgent($this->mockAgent);
         $this->videoMessage->setMediaId('video_test123');
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'safe' => 0,
@@ -115,7 +115,7 @@ class VideoMessageTest extends TestCase
                 'media_id' => 'video_test123'
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $this->videoMessage->toRequestArray());
     }
 
@@ -125,7 +125,7 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setMediaId('video_complete123');
         $this->videoMessage->setTitle('Test Video');
         $this->videoMessage->setDescription('This is a test video description');
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'safe' => 0,
@@ -138,7 +138,7 @@ class VideoMessageTest extends TestCase
                 'description' => 'This is a test video description'
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $this->videoMessage->toRequestArray());
     }
 
@@ -147,9 +147,9 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setAgent($this->mockAgent);
         $this->videoMessage->setMediaId('video_title123');
         $this->videoMessage->setTitle('Only Title');
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $this->assertEquals('Only Title', $result['video']['title']);
         $this->assertArrayNotHasKey('description', $result['video']);
     }
@@ -159,9 +159,9 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setAgent($this->mockAgent);
         $this->videoMessage->setMediaId('video_desc123');
         $this->videoMessage->setDescription('Only Description');
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $this->assertEquals('Only Description', $result['video']['description']);
         $this->assertArrayNotHasKey('title', $result['video']);
     }
@@ -171,9 +171,9 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setAgent($this->mockAgent);
         $this->videoMessage->setMediaId('video_user123');
         $this->videoMessage->setToUser(['user1', 'user2']);
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $this->assertArrayHasKey('touser', $result);
         $this->assertEquals('user1|user2', $result['touser']);
     }
@@ -183,9 +183,9 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setAgent($this->mockAgent);
         $this->videoMessage->setMediaId('video_safe123');
         $this->videoMessage->setSafe(true);
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $this->assertEquals(1, $result['safe']);
     }
 
@@ -195,9 +195,9 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setMediaId('video_duplicate123');
         $this->videoMessage->setEnableDuplicateCheck(true);
         $this->videoMessage->setDuplicateCheckInterval(3600);
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $this->assertEquals(1, $result['enable_duplicate_check']);
         $this->assertEquals(3600, $result['duplicate_check_interval']);
     }
@@ -206,12 +206,12 @@ class VideoMessageTest extends TestCase
     {
         $userId = 'user123';
         $ip = '192.168.1.1';
-        
+
         $this->videoMessage->setCreatedBy($userId);
         $this->videoMessage->setUpdatedBy($userId);
         $this->videoMessage->setCreatedFromIp($ip);
         $this->videoMessage->setUpdatedFromIp($ip);
-        
+
         $this->assertEquals($userId, $this->videoMessage->getCreatedBy());
         $this->assertEquals($userId, $this->videoMessage->getUpdatedBy());
         $this->assertEquals($ip, $this->videoMessage->getCreatedFromIp());
@@ -222,7 +222,7 @@ class VideoMessageTest extends TestCase
     {
         $msgId = 'msg_video_123456';
         $result = $this->videoMessage->setMsgId($msgId);
-        
+
         $this->assertSame($this->videoMessage, $result);
         $this->assertEquals($msgId, $this->videoMessage->getMsgId());
     }
@@ -230,7 +230,7 @@ class VideoMessageTest extends TestCase
     public function test_setAgent_withValidAgent(): void
     {
         $result = $this->videoMessage->setAgent($this->mockAgent);
-        
+
         $this->assertSame($this->videoMessage, $result);
         $this->assertSame($this->mockAgent, $this->videoMessage->getAgent());
     }
@@ -241,7 +241,7 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setToUser(['user1', 'user2']);
         $this->videoMessage->setToParty(['dept1']);
         $this->videoMessage->setToTag(['tag1']);
-        
+
         $this->assertSame($this->mockAgent, $this->videoMessage->getAgent());
         $this->assertEquals(['user1', 'user2'], $this->videoMessage->getToUser());
         $this->assertEquals(['dept1'], $this->videoMessage->getToParty());
@@ -252,7 +252,7 @@ class VideoMessageTest extends TestCase
     {
         $this->videoMessage->setTitle('');
         $this->videoMessage->setDescription('');
-        
+
         $this->assertEquals('', $this->videoMessage->getTitle());
         $this->assertEquals('', $this->videoMessage->getDescription());
     }
@@ -261,7 +261,7 @@ class VideoMessageTest extends TestCase
     {
         $longMediaId = str_repeat('v', 99); // 不超过字段长度限制
         $this->videoMessage->setMediaId($longMediaId);
-        
+
         $this->assertEquals($longMediaId, $this->videoMessage->getMediaId());
     }
 
@@ -272,9 +272,9 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setToUser(['@all']);
         $this->videoMessage->setToParty(['dept1']);
         $this->videoMessage->setToTag(['tag1']);
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $this->assertEquals('@all', $result['touser']);
         $this->assertArrayNotHasKey('toparty', $result);
         $this->assertArrayNotHasKey('totag', $result);
@@ -291,9 +291,9 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setSafe(true);
         $this->videoMessage->setEnableDuplicateCheck(true);
         $this->videoMessage->setDuplicateCheckInterval(7200);
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'touser' => 'trainee1|trainee2',
@@ -308,7 +308,7 @@ class VideoMessageTest extends TestCase
                 'description' => '2024年度安全培训视频课程'
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $result);
     }
 
@@ -318,11 +318,11 @@ class VideoMessageTest extends TestCase
         $this->videoMessage->setMediaId('minimal_video');
         $this->videoMessage->setTitle(null);
         $this->videoMessage->setDescription(null);
-        
+
         $result = $this->videoMessage->toRequestArray();
-        
+
         $this->assertArrayNotHasKey('title', $result['video']);
         $this->assertArrayNotHasKey('description', $result['video']);
         $this->assertArrayHasKey('media_id', $result['video']);
     }
-} 
+}

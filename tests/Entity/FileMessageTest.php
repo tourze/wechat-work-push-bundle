@@ -35,7 +35,7 @@ class FileMessageTest extends TestCase
     {
         $mediaId = 'file_12345678901234567890';
         $result = $this->fileMessage->setMediaId($mediaId);
-        
+
         $this->assertSame($this->fileMessage, $result);
         $this->assertEquals($mediaId, $this->fileMessage->getMediaId());
     }
@@ -48,9 +48,9 @@ class FileMessageTest extends TestCase
 
     public function test_setCreateTime_withDateTime(): void
     {
-        $dateTime = new \DateTime('2024-01-01 12:00:00');
+        $dateTime = new \DateTimeImmutable('2024-01-01 12:00:00');
         $this->fileMessage->setCreateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->fileMessage->getCreateTime());
     }
 
@@ -62,9 +62,9 @@ class FileMessageTest extends TestCase
 
     public function test_setUpdateTime_withDateTime(): void
     {
-        $dateTime = new \DateTime('2024-01-02 15:30:00');
+        $dateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
         $this->fileMessage->setUpdateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->fileMessage->getUpdateTime());
     }
 
@@ -72,7 +72,7 @@ class FileMessageTest extends TestCase
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_test123');
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'safe' => 0,
@@ -83,7 +83,7 @@ class FileMessageTest extends TestCase
                 'media_id' => 'file_test123'
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $this->fileMessage->toRequestArray());
     }
 
@@ -92,9 +92,9 @@ class FileMessageTest extends TestCase
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_test123');
         $this->fileMessage->setToUser(['user1', 'user2']);
-        
+
         $result = $this->fileMessage->toRequestArray();
-        
+
         $this->assertArrayHasKey('touser', $result);
         $this->assertEquals('user1|user2', $result['touser']);
     }
@@ -104,9 +104,9 @@ class FileMessageTest extends TestCase
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_secret123');
         $this->fileMessage->setSafe(true);
-        
+
         $result = $this->fileMessage->toRequestArray();
-        
+
         $this->assertEquals(1, $result['safe']);
     }
 
@@ -116,9 +116,9 @@ class FileMessageTest extends TestCase
         $this->fileMessage->setMediaId('file_duplicate123');
         $this->fileMessage->setEnableDuplicateCheck(true);
         $this->fileMessage->setDuplicateCheckInterval(3600);
-        
+
         $result = $this->fileMessage->toRequestArray();
-        
+
         $this->assertEquals(1, $result['enable_duplicate_check']);
         $this->assertEquals(3600, $result['duplicate_check_interval']);
     }
@@ -127,12 +127,12 @@ class FileMessageTest extends TestCase
     {
         $userId = 'user123';
         $ip = '192.168.1.1';
-        
+
         $this->fileMessage->setCreatedBy($userId);
         $this->fileMessage->setUpdatedBy($userId);
         $this->fileMessage->setCreatedFromIp($ip);
         $this->fileMessage->setUpdatedFromIp($ip);
-        
+
         $this->assertEquals($userId, $this->fileMessage->getCreatedBy());
         $this->assertEquals($userId, $this->fileMessage->getUpdatedBy());
         $this->assertEquals($ip, $this->fileMessage->getCreatedFromIp());
@@ -143,7 +143,7 @@ class FileMessageTest extends TestCase
     {
         $msgId = 'msg_file_123456';
         $result = $this->fileMessage->setMsgId($msgId);
-        
+
         $this->assertSame($this->fileMessage, $result);
         $this->assertEquals($msgId, $this->fileMessage->getMsgId());
     }
@@ -151,7 +151,7 @@ class FileMessageTest extends TestCase
     public function test_setAgent_withValidAgent(): void
     {
         $result = $this->fileMessage->setAgent($this->mockAgent);
-        
+
         $this->assertSame($this->fileMessage, $result);
         $this->assertSame($this->mockAgent, $this->fileMessage->getAgent());
     }
@@ -162,7 +162,7 @@ class FileMessageTest extends TestCase
         $this->fileMessage->setToUser(['user1', 'user2']);
         $this->fileMessage->setToParty(['dept1']);
         $this->fileMessage->setToTag(['tag1']);
-        
+
         $this->assertSame($this->mockAgent, $this->fileMessage->getAgent());
         $this->assertEquals(['user1', 'user2'], $this->fileMessage->getToUser());
         $this->assertEquals(['dept1'], $this->fileMessage->getToParty());
@@ -173,7 +173,7 @@ class FileMessageTest extends TestCase
     {
         $longMediaId = str_repeat('f', 99); // 不超过字段长度限制
         $this->fileMessage->setMediaId($longMediaId);
-        
+
         $this->assertEquals($longMediaId, $this->fileMessage->getMediaId());
     }
 
@@ -181,7 +181,7 @@ class FileMessageTest extends TestCase
     {
         $specialMediaId = 'file_-_123_ABC_xyz.pdf';
         $this->fileMessage->setMediaId($specialMediaId);
-        
+
         $this->assertEquals($specialMediaId, $this->fileMessage->getMediaId());
     }
 
@@ -192,9 +192,9 @@ class FileMessageTest extends TestCase
         $this->fileMessage->setToUser(['@all']);
         $this->fileMessage->setToParty(['dept1']);
         $this->fileMessage->setToTag(['tag1']);
-        
+
         $result = $this->fileMessage->toRequestArray();
-        
+
         $this->assertEquals('@all', $result['touser']);
         $this->assertArrayNotHasKey('toparty', $result);
         $this->assertArrayNotHasKey('totag', $result);
@@ -206,11 +206,11 @@ class FileMessageTest extends TestCase
         $pdfMediaId = 'file_pdf_123456789.pdf';
         $this->fileMessage->setMediaId($pdfMediaId);
         $this->assertEquals($pdfMediaId, $this->fileMessage->getMediaId());
-        
+
         $docMediaId = 'file_doc_987654321.docx';
         $this->fileMessage->setMediaId($docMediaId);
         $this->assertEquals($docMediaId, $this->fileMessage->getMediaId());
-        
+
         $xlsMediaId = 'file_xls_555666777.xlsx';
         $this->fileMessage->setMediaId($xlsMediaId);
         $this->assertEquals($xlsMediaId, $this->fileMessage->getMediaId());
@@ -225,9 +225,9 @@ class FileMessageTest extends TestCase
         $this->fileMessage->setSafe(true);
         $this->fileMessage->setEnableDuplicateCheck(true);
         $this->fileMessage->setDuplicateCheckInterval(7200);
-        
+
         $result = $this->fileMessage->toRequestArray();
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'touser' => 'manager1|employee1',
@@ -240,7 +240,7 @@ class FileMessageTest extends TestCase
                 'media_id' => 'complex_file_789'
             ]
         ];
-        
+
         $this->assertEquals($expectedArray, $result);
     }
-} 
+}
