@@ -15,15 +15,19 @@ use WechatWorkPushBundle\Repository\VideoMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\SafeTrait;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#视频消息
  */
 #[ORM\Entity(repositoryClass: VideoMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_video_message', options: ['comment' => '视频消息'])]
-class VideoMessage implements AppMessage
-, \Stringable{
+class VideoMessage implements
+    AppMessage,
+    \Stringable
+{
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
@@ -156,7 +160,9 @@ class VideoMessage implements AppMessage
     public function getUpdatedFromIp(): ?string
     {
         return $this->updatedFromIp;
-    }public function toRequestArray(): array
+    }
+
+    public function toRequestArray(): array
     {
         $video = [
             'media_id' => $this->getMediaId(),

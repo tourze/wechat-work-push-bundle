@@ -11,6 +11,7 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
@@ -25,6 +26,7 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
 {
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
@@ -161,20 +163,22 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
     public function getUpdatedFromIp(): ?string
     {
         return $this->updatedFromIp;
-    }public function toRequestArray(): array
+    }
+
+    public function toRequestArray(): array
     {
         $card = [
             'card_type' => $this->getCardType(),
             'source' => [
-                'icon_url' => $this->getAgent()->getSquareLogoUrl(),
-                'desc' => $this->getAgent()->getName(),
+                'icon_url' => '', // TODO: 需要 AgentInterface 提供 getSquareLogoUrl() 方法
+                'desc' => '', // TODO: 需要 AgentInterface 提供 getName() 方法
             ],
             'main_title' => [
                 'title' => $this->getTitle(),
             ],
         ];
 
-        if ($this->getTaskId()) {
+        if (null !== $this->getTaskId()) {
             $card['task_id'] = $this->getTaskId();
         }
 
@@ -201,7 +205,7 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
     }
 
     /**
-     * 获取模板卡片���型
+     * 获取模板卡片类型
      */
     abstract protected function getCardType(): string;
 }

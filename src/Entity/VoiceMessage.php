@@ -15,15 +15,19 @@ use WechatWorkPushBundle\Repository\VoiceMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\SafeTrait;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#语音消息
  */
 #[ORM\Entity(repositoryClass: VoiceMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_voice_message', options: ['comment' => '语音消息'])]
-class VoiceMessage implements AppMessage
-, \Stringable{
+class VoiceMessage implements
+    AppMessage,
+    \Stringable
+{
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
@@ -124,7 +128,9 @@ class VoiceMessage implements AppMessage
     public function getUpdatedFromIp(): ?string
     {
         return $this->updatedFromIp;
-    }public function toRequestArray(): array
+    }
+
+    public function toRequestArray(): array
     {
         return [
             ...$this->getAgentArray(),

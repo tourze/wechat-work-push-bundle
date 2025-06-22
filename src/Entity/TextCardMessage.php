@@ -15,15 +15,19 @@ use WechatWorkPushBundle\Repository\TextCardMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\IdTransTrait;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#文本卡片消息
  */
 #[ORM\Entity(repositoryClass: TextCardMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_text_card_message', options: ['comment' => '文本卡片消息'])]
-class TextCardMessage implements AppMessage
-, \Stringable{
+class TextCardMessage implements
+    AppMessage,
+    \Stringable
+{
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use IdTransTrait;
     use DuplicateCheckTrait;
@@ -49,13 +53,7 @@ class TextCardMessage implements AppMessage
     #[ORM\Column(length: 4, options: ['comment' => '按钮文字'])]
     private string $btnText = '详情';
 
-    #[CreatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
-    private ?string $createdBy = null;
 
-    #[UpdatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '更新人'])]
-    private ?string $updatedBy = null;
 
     #[CreateIpColumn]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
@@ -115,29 +113,7 @@ class TextCardMessage implements AppMessage
         $this->btnText = $btnText;
     }
 
-    public function setCreatedBy(?string $createdBy): self
-    {
-        $this->createdBy = $createdBy;
 
-        return $this;
-    }
-
-    public function getCreatedBy(): ?string
-    {
-        return $this->createdBy;
-    }
-
-    public function setUpdatedBy(?string $updatedBy): self
-    {
-        $this->updatedBy = $updatedBy;
-
-        return $this;
-    }
-
-    public function getUpdatedBy(): ?string
-    {
-        return $this->updatedBy;
-    }
 
     public function setCreatedFromIp(?string $createdFromIp): self
     {
@@ -161,14 +137,16 @@ class TextCardMessage implements AppMessage
     public function getUpdatedFromIp(): ?string
     {
         return $this->updatedFromIp;
-    }public function toRequestArray(): array
+    }
+
+    public function toRequestArray(): array
     {
         $textcard = [
             'title' => $this->getTitle(),
             'description' => $this->getDescription(),
             'url' => $this->getUrl(),
         ];
-        if (null !== $this->getBtnText()) {
+        if (!empty($this->getBtnText())) {
             $textcard['btntxt'] = $this->getBtnText();
         }
 

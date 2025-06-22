@@ -98,7 +98,7 @@ class TextMessageTest extends TestCase
 
     public function test_setCreateTime_withDateTime(): void
     {
-        $dateTime = new \DateTime('2024-01-01 12:00:00');
+        $dateTime = new \DateTimeImmutable('2024-01-01 12:00:00');
         $this->textMessage->setCreateTime($dateTime);
 
         $this->assertEquals($dateTime, $this->textMessage->getCreateTime());

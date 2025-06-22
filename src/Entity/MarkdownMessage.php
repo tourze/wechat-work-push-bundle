@@ -8,8 +8,7 @@ use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
-use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\MarkdownMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
@@ -20,9 +19,12 @@ use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
  */
 #[ORM\Entity(repositoryClass: MarkdownMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_markdown_message', options: ['comment' => 'markdown消息'])]
-class MarkdownMessage implements AppMessage
-, \Stringable{
+class MarkdownMessage implements
+    AppMessage,
+    \Stringable
+{
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use DuplicateCheckTrait;
 
@@ -31,14 +33,6 @@ class MarkdownMessage implements AppMessage
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
     private ?string $id = null;
-
-    #[CreatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
-    private ?string $createdBy = null;
-
-    #[UpdatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '更新人'])]
-    private ?string $updatedBy = null;
 
     #[CreateIpColumn]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
@@ -59,29 +53,7 @@ class MarkdownMessage implements AppMessage
         return $this->id;
     }
 
-    public function setCreatedBy(?string $createdBy): self
-    {
-        $this->createdBy = $createdBy;
 
-        return $this;
-    }
-
-    public function getCreatedBy(): ?string
-    {
-        return $this->createdBy;
-    }
-
-    public function setUpdatedBy(?string $updatedBy): self
-    {
-        $this->updatedBy = $updatedBy;
-
-        return $this;
-    }
-
-    public function getUpdatedBy(): ?string
-    {
-        return $this->updatedBy;
-    }
 
     public function setCreatedFromIp(?string $createdFromIp): self
     {
@@ -122,7 +94,8 @@ class MarkdownMessage implements AppMessage
         $this->content = $content;
 
         return $this;
-    }public function toRequestArray(): array
+    }
+    public function toRequestArray(): array
     {
         return [
             ...$this->getAgentArray(),

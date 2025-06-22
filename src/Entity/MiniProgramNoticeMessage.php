@@ -15,6 +15,7 @@ use WechatWorkPushBundle\Repository\MiniProgramNoticeMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\IdTransTrait;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * 小程序通知消息只允许绑定了小程序的应用发送，之前，消息会通过统一的会话【小程序通知】发送给用户。
@@ -26,9 +27,12 @@ use WechatWorkPushBundle\Traits\IdTransTrait;
  */
 #[ORM\Entity(repositoryClass: MiniProgramNoticeMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_mini_program_notice_message', options: ['comment' => '小程序通知消息'])]
-class MiniProgramNoticeMessage implements AppMessage
-, \Stringable{
+class MiniProgramNoticeMessage implements
+    AppMessage,
+    \Stringable
+{
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use IdTransTrait;
     use DuplicateCheckTrait;
@@ -38,14 +42,6 @@ class MiniProgramNoticeMessage implements AppMessage
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
     private ?string $id = null;
-
-    #[CreatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
-    private ?string $createdBy = null;
-
-    #[UpdatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '更新人'])]
-    private ?string $updatedBy = null;
 
     #[CreateIpColumn]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
@@ -82,30 +78,6 @@ class MiniProgramNoticeMessage implements AppMessage
     public function getId(): ?string
     {
         return $this->id;
-    }
-
-    public function setCreatedBy(?string $createdBy): self
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    public function getCreatedBy(): ?string
-    {
-        return $this->createdBy;
-    }
-
-    public function setUpdatedBy(?string $updatedBy): self
-    {
-        $this->updatedBy = $updatedBy;
-
-        return $this;
-    }
-
-    public function getUpdatedBy(): ?string
-    {
-        return $this->updatedBy;
     }
 
     public function setCreatedFromIp(?string $createdFromIp): self
@@ -197,7 +169,9 @@ class MiniProgramNoticeMessage implements AppMessage
     public function setContentItem(?array $contentItem): void
     {
         $this->contentItem = $contentItem;
-    }public function toRequestArray(): array
+    }
+
+    public function toRequestArray(): array
     {
         $notice = [
             'appid' => $this->getAppId(),

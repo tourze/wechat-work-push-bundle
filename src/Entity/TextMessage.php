@@ -11,6 +11,7 @@ use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\TextMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
@@ -23,9 +24,13 @@ use WechatWorkPushBundle\Traits\SafeTrait;
  */
 #[ORM\Entity(repositoryClass: TextMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_text_message', options: ['comment' => '文本消息'])]
-class TextMessage implements AppMessage, AdminArrayInterface
-, \Stringable{
+class TextMessage implements
+    AppMessage,
+    AdminArrayInterface,
+    \Stringable
+{
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use SafeTrait;
     use IdTransTrait;
@@ -127,7 +132,9 @@ class TextMessage implements AppMessage, AdminArrayInterface
     public function getUpdatedFromIp(): ?string
     {
         return $this->updatedFromIp;
-    }public function toRequestArray(): array
+    }
+
+    public function toRequestArray(): array
     {
         return [
             ...$this->getAgentArray(),

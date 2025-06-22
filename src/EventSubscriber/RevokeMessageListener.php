@@ -32,12 +32,11 @@ class RevokeMessageListener
 {
     public function __construct(
         private readonly WorkService $workService,
-    ) {
-    }
+    ) {}
 
     public function postRemove(AppMessage $object): void
     {
-        if (!$object->getMsgId()) {
+        if (null === $object->getMsgId()) {
             return;
         }
 

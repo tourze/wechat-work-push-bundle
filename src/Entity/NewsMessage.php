@@ -16,15 +16,20 @@ use WechatWorkPushBundle\Repository\NewsMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\SafeTrait;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#图文消息
  */
 #[ORM\Entity(repositoryClass: NewsMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_news_message', options: ['comment' => '图文消息'])]
-class NewsMessage implements AppMessage, AdminArrayInterface
-, \Stringable{
+class NewsMessage implements
+    AppMessage,
+    AdminArrayInterface,
+    \Stringable
+{
     use TimestampableAware;
+    use BlameableAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
@@ -203,7 +208,9 @@ class NewsMessage implements AppMessage, AdminArrayInterface
     public function getUpdatedFromIp(): ?string
     {
         return $this->updatedFromIp;
-    }public function toRequestArray(): array
+    }
+
+    public function toRequestArray(): array
     {
         $articles = [
             'title' => $this->getTitle(),

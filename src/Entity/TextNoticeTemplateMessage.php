@@ -73,7 +73,7 @@ class TextNoticeTemplateMessage extends TemplateCardMessage
             'url' => $this->getUrl(),
         ];
 
-        if ($this->getBtnText()) {
+        if (null !== $this->getBtnText()) {
             $card['card_action']['text'] = $this->getBtnText();
         }
 

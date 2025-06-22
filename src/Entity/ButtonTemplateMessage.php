@@ -93,7 +93,7 @@ class ButtonTemplateMessage extends TemplateCardMessage
             ],
         ];
 
-        if ($this->getButtonKey()) {
+        if (null !== $this->getButtonKey()) {
             $card['button_list'][0]['key'] = $this->getButtonKey();
         }
 
