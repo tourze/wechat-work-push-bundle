@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Tourze\Arrayable\AdminArrayInterface;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
@@ -27,6 +27,7 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
 {
     use TimestampableAware;
     use BlameableAware;
+    use SnowflakeKeyAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
@@ -49,11 +50,6 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '任务id'])]
     protected ?string $taskId = null;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     #[CreatedByColumn]
     #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
@@ -71,10 +67,6 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
     private ?string $updatedFromIp = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getMsgType(): string
     {

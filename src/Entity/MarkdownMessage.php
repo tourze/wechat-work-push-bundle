@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
@@ -25,14 +25,10 @@ class MarkdownMessage implements
 {
     use TimestampableAware;
     use BlameableAware;
+    use SnowflakeKeyAware;
     use AgentTrait;
     use DuplicateCheckTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     #[CreateIpColumn]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
@@ -47,11 +43,6 @@ class MarkdownMessage implements
      */
     #[ORM\Column(length: 2048, options: ['comment' => 'markdown内容'])]
     private string $content;
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
 
 

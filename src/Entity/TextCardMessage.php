@@ -6,16 +6,14 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
-use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\TextCardMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\IdTransTrait;
-use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#文本卡片消息
@@ -28,15 +26,11 @@ class TextCardMessage implements
 {
     use TimestampableAware;
     use BlameableAware;
+    use SnowflakeKeyAware;
     use AgentTrait;
     use IdTransTrait;
     use DuplicateCheckTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     #[ORM\Column(length: 128, options: ['comment' => '标题'])]
     private string $title;
@@ -63,10 +57,6 @@ class TextCardMessage implements
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
     private ?string $updatedFromIp = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getMsgType(): string
     {

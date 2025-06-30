@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Tourze\Arrayable\AdminArrayInterface;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
@@ -28,15 +28,11 @@ class MpnewsMessage implements
 {
     use TimestampableAware;
     use BlameableAware;
+    use SnowflakeKeyAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     #[CreateIpColumn]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
@@ -75,11 +71,6 @@ class MpnewsMessage implements
      */
     #[ORM\Column(length: 2048, nullable: true, options: ['comment' => '点击“阅读原文”之后的页面链接'])]
     private ?string $contentSourceUrl = null;
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
 
 

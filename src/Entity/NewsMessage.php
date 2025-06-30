@@ -7,16 +7,16 @@ use Doctrine\ORM\Mapping as ORM;
 use Tourze\Arrayable\AdminArrayInterface;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\NewsMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\SafeTrait;
-use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#图文消息
@@ -30,15 +30,11 @@ class NewsMessage implements
 {
     use TimestampableAware;
     use BlameableAware;
+    use SnowflakeKeyAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     /**
      * @var string 标题，不超过128个字节，超过会自动截断（支持id转译）
@@ -92,10 +88,6 @@ class NewsMessage implements
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
     private ?string $updatedFromIp = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getMsgType(): string
     {

@@ -6,16 +6,14 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
-use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Repository\MiniProgramNoticeMessageRepository;
 use WechatWorkPushBundle\Traits\AgentTrait;
 use WechatWorkPushBundle\Traits\DuplicateCheckTrait;
 use WechatWorkPushBundle\Traits\IdTransTrait;
-use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 
 /**
  * 小程序通知消息只允许绑定了小程序的应用发送，之前，消息会通过统一的会话【小程序通知】发送给用户。
@@ -33,15 +31,11 @@ class MiniProgramNoticeMessage implements
 {
     use TimestampableAware;
     use BlameableAware;
+    use SnowflakeKeyAware;
     use AgentTrait;
     use IdTransTrait;
     use DuplicateCheckTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
 
     #[CreateIpColumn]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
@@ -75,10 +69,6 @@ class MiniProgramNoticeMessage implements
     #[ORM\Column(nullable: true, options: ['comment' => '消息内容键值对，最多允许10个item'])]
     private ?array $contentItem = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function setCreatedFromIp(?string $createdFromIp): self
     {
