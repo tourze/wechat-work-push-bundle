@@ -2,10 +2,9 @@
 
 namespace WechatWorkPushBundle\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
-use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
+use Symfony\Component\Validator\Constraints as Assert;
+use Tourze\DoctrineIpBundle\Traits\IpTraceableAware;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
@@ -25,74 +24,45 @@ use WechatWorkPushBundle\Traits\IdTransTrait;
  */
 #[ORM\Entity(repositoryClass: MiniProgramNoticeMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_mini_program_notice_message', options: ['comment' => '小程序通知消息'])]
-class MiniProgramNoticeMessage implements
-    AppMessage,
-    \Stringable
+class MiniProgramNoticeMessage implements AppMessage, \Stringable
 {
     use TimestampableAware;
     use BlameableAware;
     use SnowflakeKeyAware;
+    use IpTraceableAware;
     use AgentTrait;
     use IdTransTrait;
     use DuplicateCheckTrait;
 
-
-    #[CreateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
-    private ?string $createdFromIp = null;
-
-    #[UpdateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
-    private ?string $updatedFromIp = null;
-
-    /**
-     * @var string 必须是与当前应用关联的小程序
-     */
+    /** @var string */
     #[ORM\Column(length: 64, options: ['comment' => '小程序appid'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 64)]
     private string $appId;
 
-    /**
-     * @var string|null 仅限本小程序内的页面。该字段不填则消息点击后不跳转。
-     */
+    /** @var string|null */
     #[ORM\Column(length: 1024, nullable: true, options: ['comment' => '点击消息卡片后的小程序页面'])]
+    #[Assert\Length(max: 1024)]
     private ?string $page = null;
 
     #[ORM\Column(length: 12, options: ['comment' => '消息标题'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 12)]
     private string $title;
 
     #[ORM\Column(length: 12, nullable: true, options: ['comment' => '消息描述'])]
+    #[Assert\Length(max: 12)]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '是否放大第一个content_item'])]
+    #[Assert\Type(type: 'bool')]
     private ?bool $emphasisFirstItem = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(nullable: true, options: ['comment' => '消息内容键值对，最多允许10个item'])]
+    #[Assert\Type(type: 'array')]
+    #[Assert\Count(max: 10)]
     private ?array $contentItem = null;
-
-
-    public function setCreatedFromIp(?string $createdFromIp): self
-    {
-        $this->createdFromIp = $createdFromIp;
-
-        return $this;
-    }
-
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setUpdatedFromIp(?string $updatedFromIp): self
-    {
-        $this->updatedFromIp = $updatedFromIp;
-
-        return $this;
-    }
-
-    public function getUpdatedFromIp(): ?string
-    {
-        return $this->updatedFromIp;
-    }
 
     public function getMsgType(): string
     {
@@ -104,11 +74,9 @@ class MiniProgramNoticeMessage implements
         return $this->appId;
     }
 
-    public function setAppId(string $appId): static
+    public function setAppId(string $appId): void
     {
         $this->appId = $appId;
-
-        return $this;
     }
 
     public function getPage(): ?string
@@ -151,16 +119,25 @@ class MiniProgramNoticeMessage implements
         $this->emphasisFirstItem = $emphasisFirstItem;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getContentItem(): ?array
     {
         return $this->contentItem;
     }
 
+    /**
+     * @param array<string, mixed>|null $contentItem
+     */
     public function setContentItem(?array $contentItem): void
     {
         $this->contentItem = $contentItem;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array
     {
         $notice = [

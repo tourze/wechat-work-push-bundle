@@ -4,18 +4,35 @@ namespace WechatWorkPushBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use WechatWorkPushBundle\Entity\NewsTemplateMessage;
 
 /**
- * @method NewsTemplateMessage|null find($id, $lockMode = null, $lockVersion = null)
- * @method NewsTemplateMessage|null findOneBy(array $criteria, array $orderBy = null)
- * @method NewsTemplateMessage[]    findAll()
- * @method NewsTemplateMessage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<NewsTemplateMessage>
  */
+#[AsRepository(entityClass: NewsTemplateMessage::class)]
 class NewsTemplateMessageRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, NewsTemplateMessage::class);
+    }
+
+    public function save(NewsTemplateMessage $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(NewsTemplateMessage $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

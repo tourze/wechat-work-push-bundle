@@ -6,9 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait IdTransTrait
 {
-    /**
-     * @var bool|null 表示是否开启id转译，0表示否，1表示是，默认0
-     */
     #[ORM\Column(nullable: true, options: ['comment' => '表示是否开启id转译'])]
     private ?bool $enableIdTrans = false;
 
@@ -17,17 +14,23 @@ trait IdTransTrait
         return $this->enableIdTrans;
     }
 
-    public function setEnableIdTrans(?bool $enableIdTrans): static
+    public function setEnableIdTrans(?bool $enableIdTrans): void
     {
         $this->enableIdTrans = $enableIdTrans;
-
-        return $this;
     }
 
+    public function getEnableIdTrans(): ?bool
+    {
+        return $this->enableIdTrans;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function getIdTransArray(): array
     {
         return [
-            'enable_id_trans' => $this->isEnableIdTrans() ? 1 : 0,
+            'enable_id_trans' => true === $this->isEnableIdTrans() ? 1 : 0,
         ];
     }
 }

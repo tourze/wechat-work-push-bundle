@@ -4,6 +4,7 @@ namespace WechatWorkPushBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use WechatWorkPushBundle\Repository\MultipleTemplateMessageRepository;
 
 /**
@@ -18,12 +19,16 @@ class MultipleTemplateMessage extends TemplateCardMessage
     /**
      * @var string 选择题key值，用户提交选项后，会产生回调事件，回调事件会带上该key值表示该题，最长支持128字节
      */
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 128)]
     #[ORM\Column(length: 128, options: ['comment' => '选择题key'])]
     private string $questionKey;
 
     /**
-     * @var array 选项列表，最多4个选项，json格式，如：[{"id": "1", "text": "选项1"}, {"id": "2", "text": "选项2"}]
+     * @var array<int, array<string, string>> 选项列表，最多4个选项，json格式，如：[{"id": "1", "text": "选项1"}, {"id": "2", "text": "选项2"}]
      */
+    #[Assert\NotBlank]
+    #[Assert\Count(min: 1, max: 4)]
     #[ORM\Column(type: Types::JSON, options: ['comment' => '选项列表'])]
     private array $options;
 
@@ -32,28 +37,35 @@ class MultipleTemplateMessage extends TemplateCardMessage
         return $this->questionKey;
     }
 
-    public function setQuestionKey(string $questionKey): static
+    public function setQuestionKey(string $questionKey): void
     {
         $this->questionKey = $questionKey;
-
-        return $this;
     }
 
+    /**
+     * @return array<int, array<string, string>>
+     */
     public function getOptions(): array
     {
         return $this->options;
     }
 
-    public function setOptions(array $options): static
+    /**
+     * @param array<int, array<string, string>> $options
+     */
+    public function setOptions(array $options): void
     {
         $this->options = $options;
-
-        return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array
     {
-        $card = parent::toRequestArray()['template_card'];
+        $parentArray = parent::toRequestArray();
+        assert(isset($parentArray['template_card']) && is_array($parentArray['template_card']));
+        $card = $parentArray['template_card'];
 
         $card['select_list'] = [
             [
@@ -83,6 +95,9 @@ class MultipleTemplateMessage extends TemplateCardMessage
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function retrieveAdminArray(): array
     {
         return [

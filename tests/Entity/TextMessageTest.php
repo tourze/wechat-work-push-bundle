@@ -2,45 +2,93 @@
 
 namespace WechatWorkPushBundle\Tests\Entity;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 use Tourze\WechatWorkContracts\AgentInterface;
 use WechatWorkPushBundle\Entity\TextMessage;
 
-class TextMessageTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(TextMessage::class)]
+final class TextMessageTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        return new TextMessage();
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            // 主要属性
+            'content' => ['content', '这是一条重要的工作通知，请及时查收并处理相关事务。'],
+
+            // TimestampableAware traits
+            'createTime' => ['createTime', new \DateTimeImmutable('2024-01-15 09:30:00')],
+            'updateTime' => ['updateTime', new \DateTimeImmutable('2024-01-15 10:45:00')],
+
+            // BlameableAware traits
+            'createdBy' => ['createdBy', 'admin_user_001'],
+            'updatedBy' => ['updatedBy', 'manager_user_002'],
+
+            // IpTraceableAware traits
+            'createdFromIp' => ['createdFromIp', '192.168.1.100'],
+            'updatedFromIp' => ['updatedFromIp', '10.0.2.50'],
+
+            // AgentTrait properties
+            'msgId' => ['msgId', 'msg_text_20240115_093000_001'],
+            'toUser' => ['toUser', ['user001', 'user002', 'manager01']],
+            'toParty' => ['toParty', ['dept_hr', 'dept_it']],
+            'toTag' => ['toTag', ['important', 'urgent']],
+
+            // SafeTrait properties
+            'safe' => ['safe', true],
+
+            // DuplicateCheckTrait properties
+            'enableDuplicateCheck' => ['enableDuplicateCheck', true],
+            'duplicateCheckInterval' => ['duplicateCheckInterval', 3600],
+
+            // IdTransTrait properties (TextMessage specific)
+            'enableIdTrans' => ['enableIdTrans', true],
+        ];
+    }
+
     private TextMessage $textMessage;
-    private AgentInterface&MockObject $mockAgent;
+
+    private AgentInterface $mockAgent;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->textMessage = new TextMessage();
         $this->mockAgent = $this->createMock(AgentInterface::class);
-        $this->mockAgent->expects($this->any())
-            ->method('getAgentId')
-            ->willReturn('1000002');
+        $this->mockAgent->method('getAgentId')->willReturn('1000002');
     }
 
-    public function test_getId_returnsNullInitially(): void
+    public function testGetIdReturnsNullInitially(): void
     {
         $this->assertNull($this->textMessage->getId());
     }
 
-    public function test_getMsgType_returnsText(): void
+    public function testGetMsgTypeReturnsText(): void
     {
         $this->assertEquals('text', $this->textMessage->getMsgType());
     }
 
-    public function test_setContent_withValidContent(): void
+    public function testSetContentWithValidContent(): void
     {
         $content = '这是一条测试消息';
-        $result = $this->textMessage->setContent($content);
+        $this->textMessage->setContent($content);
 
-        $this->assertSame($this->textMessage, $result);
         $this->assertEquals($content, $this->textMessage->getContent());
     }
 
-    public function test_setContent_withMaxLength(): void
+    public function testSetContentWithMaxLength(): void
     {
         $content = str_repeat('测', 1024); // 最大长度2048字节，每个中文字符3字节
         $this->textMessage->setContent($content);
@@ -48,55 +96,51 @@ class TextMessageTest extends TestCase
         $this->assertEquals($content, $this->textMessage->getContent());
     }
 
-    public function test_setContent_withEmptyString(): void
+    public function testSetContentWithEmptyString(): void
     {
         $this->textMessage->setContent('');
         $this->assertEquals('', $this->textMessage->getContent());
     }
 
-    public function test_setCreatedBy_withValidUserId(): void
+    public function testSetCreatedByWithValidUserId(): void
     {
         $userId = 'user123';
-        $result = $this->textMessage->setCreatedBy($userId);
+        $this->textMessage->setCreatedBy($userId);
 
-        $this->assertSame($this->textMessage, $result);
         $this->assertEquals($userId, $this->textMessage->getCreatedBy());
     }
 
-    public function test_setCreatedBy_withNull(): void
+    public function testSetCreatedByWithNull(): void
     {
         $this->textMessage->setCreatedBy(null);
         $this->assertNull($this->textMessage->getCreatedBy());
     }
 
-    public function test_setUpdatedBy_withValidUserId(): void
+    public function testSetUpdatedByWithValidUserId(): void
     {
         $userId = 'user456';
-        $result = $this->textMessage->setUpdatedBy($userId);
+        $this->textMessage->setUpdatedBy($userId);
 
-        $this->assertSame($this->textMessage, $result);
         $this->assertEquals($userId, $this->textMessage->getUpdatedBy());
     }
 
-    public function test_setCreatedFromIp_withValidIp(): void
+    public function testSetCreatedFromIpWithValidIp(): void
     {
         $ip = '192.168.1.1';
-        $result = $this->textMessage->setCreatedFromIp($ip);
+        $this->textMessage->setCreatedFromIp($ip);
 
-        $this->assertSame($this->textMessage, $result);
         $this->assertEquals($ip, $this->textMessage->getCreatedFromIp());
     }
 
-    public function test_setUpdatedFromIp_withValidIp(): void
+    public function testSetUpdatedFromIpWithValidIp(): void
     {
         $ip = '10.0.0.1';
-        $result = $this->textMessage->setUpdatedFromIp($ip);
+        $this->textMessage->setUpdatedFromIp($ip);
 
-        $this->assertSame($this->textMessage, $result);
         $this->assertEquals($ip, $this->textMessage->getUpdatedFromIp());
     }
 
-    public function test_setCreateTime_withDateTime(): void
+    public function testSetCreateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-01 12:00:00');
         $this->textMessage->setCreateTime($dateTime);
@@ -104,13 +148,13 @@ class TextMessageTest extends TestCase
         $this->assertEquals($dateTime, $this->textMessage->getCreateTime());
     }
 
-    public function test_setCreateTime_withNull(): void
+    public function testSetCreateTimeWithNull(): void
     {
         $this->textMessage->setCreateTime(null);
         $this->assertNull($this->textMessage->getCreateTime());
     }
 
-    public function test_setUpdateTime_withDateTime(): void
+    public function testSetUpdateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
         $this->textMessage->setUpdateTime($dateTime);
@@ -118,7 +162,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals($dateTime, $this->textMessage->getUpdateTime());
     }
 
-    public function test_toRequestArray_withBasicData(): void
+    public function testToRequestArrayWithBasicData(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Hello World');
@@ -131,14 +175,14 @@ class TextMessageTest extends TestCase
             'duplicate_check_interval' => 1800,
             'msgtype' => 'text',
             'text' => [
-                'content' => 'Hello World'
-            ]
+                'content' => 'Hello World',
+            ],
         ];
 
         $this->assertEquals($expectedArray, $this->textMessage->toRequestArray());
     }
 
-    public function test_toRequestArray_withToUser(): void
+    public function testToRequestArrayWithToUser(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Hello');
@@ -150,7 +194,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals('user1|user2', $result['touser']);
     }
 
-    public function test_toRequestArray_withToParty(): void
+    public function testToRequestArrayWithToParty(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Hello');
@@ -163,7 +207,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals('dept1|dept2', $result['toparty']);
     }
 
-    public function test_toRequestArray_withToTag(): void
+    public function testToRequestArrayWithToTag(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Hello');
@@ -176,7 +220,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals('tag1|tag2', $result['totag']);
     }
 
-    public function test_toRequestArray_withAllUsers(): void
+    public function testToRequestArrayWithAllUsers(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Hello');
@@ -191,7 +235,7 @@ class TextMessageTest extends TestCase
         $this->assertArrayNotHasKey('totag', $result);
     }
 
-    public function test_toRequestArray_withSafeEnabled(): void
+    public function testToRequestArrayWithSafeEnabled(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Secret message');
@@ -202,7 +246,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals(1, $result['safe']);
     }
 
-    public function test_toRequestArray_withIdTransEnabled(): void
+    public function testToRequestArrayWithIdTransEnabled(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Message with @user123');
@@ -213,7 +257,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals(1, $result['enable_id_trans']);
     }
 
-    public function test_toRequestArray_withDuplicateCheckEnabled(): void
+    public function testToRequestArrayWithDuplicateCheckEnabled(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Duplicate check message');
@@ -226,7 +270,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals(3600, $result['duplicate_check_interval']);
     }
 
-    public function test_retrieveAdminArray_withCompleteData(): void
+    public function testRetrieveAdminArrayWithCompleteData(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Admin test message');
@@ -240,13 +284,13 @@ class TextMessageTest extends TestCase
             'content' => 'Admin test message',
             'createTime' => '2024-01-01 10:00:00',
             'updateTime' => '2024-01-01 11:00:00',
-            'agentid' => '1000002'
+            'agentid' => '1000002',
         ];
 
         $this->assertEquals($expectedArray, $this->textMessage->retrieveAdminArray());
     }
 
-    public function test_retrieveAdminArray_withNullDates(): void
+    public function testRetrieveAdminArrayWithNullDates(): void
     {
         $this->textMessage->setAgent($this->mockAgent);
         $this->textMessage->setContent('Test');
@@ -257,24 +301,22 @@ class TextMessageTest extends TestCase
         $this->assertNull($result['updateTime']);
     }
 
-    public function test_setMsgId_withValidMsgId(): void
+    public function testSetMsgIdWithValidMsgId(): void
     {
         $msgId = 'msg_123456789';
-        $result = $this->textMessage->setMsgId($msgId);
+        $this->textMessage->setMsgId($msgId);
 
-        $this->assertSame($this->textMessage, $result);
         $this->assertEquals($msgId, $this->textMessage->getMsgId());
     }
 
-    public function test_setAgent_withValidAgent(): void
+    public function testSetAgentWithValidAgent(): void
     {
-        $result = $this->textMessage->setAgent($this->mockAgent);
+        $this->textMessage->setAgent($this->mockAgent);
 
-        $this->assertSame($this->textMessage, $result);
         $this->assertSame($this->mockAgent, $this->textMessage->getAgent());
     }
 
-    public function test_setToParty_withValidArray(): void
+    public function testSetToPartyWithValidArray(): void
     {
         $parties = ['dept1', 'dept2', 'dept3'];
         $this->textMessage->setToParty($parties);
@@ -282,7 +324,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals($parties, $this->textMessage->getToParty());
     }
 
-    public function test_setToTag_withValidArray(): void
+    public function testSetToTagWithValidArray(): void
     {
         $tags = ['tag1', 'tag2'];
         $this->textMessage->setToTag($tags);
@@ -290,7 +332,7 @@ class TextMessageTest extends TestCase
         $this->assertEquals($tags, $this->textMessage->getToTag());
     }
 
-    public function test_edgeCases_emptyArrays(): void
+    public function testEdgeCasesEmptyArrays(): void
     {
         $this->textMessage->setToUser([]);
         $this->textMessage->setToParty([]);

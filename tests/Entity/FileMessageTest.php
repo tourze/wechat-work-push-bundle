@@ -2,51 +2,96 @@
 
 namespace WechatWorkPushBundle\Tests\Entity;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 use Tourze\WechatWorkContracts\AgentInterface;
 use WechatWorkPushBundle\Entity\FileMessage;
 
-class FileMessageTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(FileMessage::class)]
+final class FileMessageTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        return new FileMessage();
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            // 主要属性
+            'mediaId' => ['mediaId', 'file_media_20240115_quarterly_report.pdf'],
+
+            // TimestampableAware traits
+            'createTime' => ['createTime', new \DateTimeImmutable('2024-01-15 11:30:00')],
+            'updateTime' => ['updateTime', new \DateTimeImmutable('2024-01-15 11:45:00')],
+
+            // BlameableAware traits
+            'createdBy' => ['createdBy', 'finance_analyst_001'],
+            'updatedBy' => ['updatedBy', 'document_manager_002'],
+
+            // IpTraceableAware traits
+            'createdFromIp' => ['createdFromIp', '172.20.1.15'],
+            'updatedFromIp' => ['updatedFromIp', '10.10.10.40'],
+
+            // AgentTrait properties
+            'msgId' => ['msgId', 'msg_file_20240115_113000_001'],
+            'toUser' => ['toUser', ['executives', 'department_managers']],
+            'toParty' => ['toParty', ['finance_dept', 'executive_office']],
+            'toTag' => ['toTag', ['quarterly_reports', 'confidential_docs']],
+
+            // SafeTrait properties
+            'safe' => ['safe', true],
+
+            // DuplicateCheckTrait properties
+            'enableDuplicateCheck' => ['enableDuplicateCheck', true],
+            'duplicateCheckInterval' => ['duplicateCheckInterval', 5400],
+        ];
+    }
+
     private FileMessage $fileMessage;
-    private AgentInterface&MockObject $mockAgent;
+
+    private AgentInterface $mockAgent;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->fileMessage = new FileMessage();
         $this->mockAgent = $this->createMock(AgentInterface::class);
-        $this->mockAgent->expects($this->any())
-            ->method('getAgentId')
-            ->willReturn('1000002');
+        $this->mockAgent->method('getAgentId')->willReturn('1000002');
     }
 
-    public function test_getId_returnsNullInitially(): void
+    public function testGetIdReturnsNullInitially(): void
     {
         $this->assertNull($this->fileMessage->getId());
     }
 
-    public function test_getMsgType_returnsFile(): void
+    public function testGetMsgTypeReturnsFile(): void
     {
         $this->assertEquals('file', $this->fileMessage->getMsgType());
     }
 
-    public function test_setMediaId_withValidMediaId(): void
+    public function testSetMediaIdWithValidMediaId(): void
     {
         $mediaId = 'file_12345678901234567890';
-        $result = $this->fileMessage->setMediaId($mediaId);
+        $this->fileMessage->setMediaId($mediaId);
 
-        $this->assertSame($this->fileMessage, $result);
         $this->assertEquals($mediaId, $this->fileMessage->getMediaId());
     }
 
-    public function test_setMediaId_withEmptyString(): void
+    public function testSetMediaIdWithEmptyString(): void
     {
         $this->fileMessage->setMediaId('');
         $this->assertEquals('', $this->fileMessage->getMediaId());
     }
 
-    public function test_setCreateTime_withDateTime(): void
+    public function testSetCreateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-01 12:00:00');
         $this->fileMessage->setCreateTime($dateTime);
@@ -54,13 +99,13 @@ class FileMessageTest extends TestCase
         $this->assertEquals($dateTime, $this->fileMessage->getCreateTime());
     }
 
-    public function test_setCreateTime_withNull(): void
+    public function testSetCreateTimeWithNull(): void
     {
         $this->fileMessage->setCreateTime(null);
         $this->assertNull($this->fileMessage->getCreateTime());
     }
 
-    public function test_setUpdateTime_withDateTime(): void
+    public function testSetUpdateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
         $this->fileMessage->setUpdateTime($dateTime);
@@ -68,7 +113,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals($dateTime, $this->fileMessage->getUpdateTime());
     }
 
-    public function test_toRequestArray_withBasicData(): void
+    public function testToRequestArrayWithBasicData(): void
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_test123');
@@ -80,14 +125,15 @@ class FileMessageTest extends TestCase
             'duplicate_check_interval' => 1800,
             'msgtype' => 'file',
             'file' => [
-                'media_id' => 'file_test123'
-            ]
+                'media_id' => 'file_test123',
+            ],
+            'enable_id_trans' => 0,
         ];
 
         $this->assertEquals($expectedArray, $this->fileMessage->toRequestArray());
     }
 
-    public function test_toRequestArray_withToUser(): void
+    public function testToRequestArrayWithToUser(): void
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_test123');
@@ -99,7 +145,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals('user1|user2', $result['touser']);
     }
 
-    public function test_toRequestArray_withSafeEnabled(): void
+    public function testToRequestArrayWithSafeEnabled(): void
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_secret123');
@@ -110,7 +156,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals(1, $result['safe']);
     }
 
-    public function test_toRequestArray_withDuplicateCheckEnabled(): void
+    public function testToRequestArrayWithDuplicateCheckEnabled(): void
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_duplicate123');
@@ -123,7 +169,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals(3600, $result['duplicate_check_interval']);
     }
 
-    public function test_userTrackingMethods(): void
+    public function testUserTrackingMethods(): void
     {
         $userId = 'user123';
         $ip = '192.168.1.1';
@@ -139,24 +185,22 @@ class FileMessageTest extends TestCase
         $this->assertEquals($ip, $this->fileMessage->getUpdatedFromIp());
     }
 
-    public function test_setMsgId_withValidMsgId(): void
+    public function testSetMsgIdWithValidMsgId(): void
     {
         $msgId = 'msg_file_123456';
-        $result = $this->fileMessage->setMsgId($msgId);
+        $this->fileMessage->setMsgId($msgId);
 
-        $this->assertSame($this->fileMessage, $result);
         $this->assertEquals($msgId, $this->fileMessage->getMsgId());
     }
 
-    public function test_setAgent_withValidAgent(): void
+    public function testSetAgentWithValidAgent(): void
     {
-        $result = $this->fileMessage->setAgent($this->mockAgent);
+        $this->fileMessage->setAgent($this->mockAgent);
 
-        $this->assertSame($this->fileMessage, $result);
         $this->assertSame($this->mockAgent, $this->fileMessage->getAgent());
     }
 
-    public function test_agentTraitMethods(): void
+    public function testAgentTraitMethods(): void
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setToUser(['user1', 'user2']);
@@ -169,7 +213,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals(['tag1'], $this->fileMessage->getToTag());
     }
 
-    public function test_edgeCases_longMediaId(): void
+    public function testEdgeCasesLongMediaId(): void
     {
         $longMediaId = str_repeat('f', 99); // 不超过字段长度限制
         $this->fileMessage->setMediaId($longMediaId);
@@ -177,7 +221,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals($longMediaId, $this->fileMessage->getMediaId());
     }
 
-    public function test_edgeCases_specialCharactersInMediaId(): void
+    public function testEdgeCasesSpecialCharactersInMediaId(): void
     {
         $specialMediaId = 'file_-_123_ABC_xyz.pdf';
         $this->fileMessage->setMediaId($specialMediaId);
@@ -185,7 +229,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals($specialMediaId, $this->fileMessage->getMediaId());
     }
 
-    public function test_toRequestArray_withAllUsers(): void
+    public function testToRequestArrayWithAllUsers(): void
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('file_all123');
@@ -200,7 +244,7 @@ class FileMessageTest extends TestCase
         $this->assertArrayNotHasKey('totag', $result);
     }
 
-    public function test_fileSpecificMediaIds(): void
+    public function testFileSpecificMediaIds(): void
     {
         // 测试不同文件类型的 media ID
         $pdfMediaId = 'file_pdf_123456789.pdf';
@@ -216,7 +260,7 @@ class FileMessageTest extends TestCase
         $this->assertEquals($xlsMediaId, $this->fileMessage->getMediaId());
     }
 
-    public function test_toRequestArray_withComplexScenario(): void
+    public function testToRequestArrayWithComplexScenario(): void
     {
         $this->fileMessage->setAgent($this->mockAgent);
         $this->fileMessage->setMediaId('complex_file_789');
@@ -237,8 +281,9 @@ class FileMessageTest extends TestCase
             'duplicate_check_interval' => 7200,
             'msgtype' => 'file',
             'file' => [
-                'media_id' => 'complex_file_789'
-            ]
+                'media_id' => 'complex_file_789',
+            ],
+            'enable_id_trans' => 0,
         ];
 
         $this->assertEquals($expectedArray, $result);

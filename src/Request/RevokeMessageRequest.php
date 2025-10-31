@@ -21,7 +21,7 @@ class RevokeMessageRequest extends ApiRequest
 
     public function getRequestPath(): string
     {
-        return '/cgi-bin/message/recall';
+        return 'cgi-bin/message/recall';
     }
 
     public function getRequestOptions(): ?array

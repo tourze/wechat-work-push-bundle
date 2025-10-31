@@ -3,6 +3,7 @@
 namespace WechatWorkPushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use WechatWorkPushBundle\Repository\ButtonTemplateMessageRepository;
 
 /**
@@ -18,18 +19,24 @@ class ButtonTemplateMessage extends TemplateCardMessage
      * @var string 点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)
      */
     #[ORM\Column(length: 2048, options: ['comment' => '跳转链接'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 2048)]
+    #[Assert\Url]
     private string $url;
 
     /**
      * @var string 按钮文案，建议不超过10个字
      */
     #[ORM\Column(length: 32, options: ['comment' => '按钮文案'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 32)]
     private string $buttonText;
 
     /**
      * @var string|null 点击按钮后返回给企业微信的回调key，最长128字节
      */
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '按钮key'])]
+    #[Assert\Length(max: 128)]
     private ?string $buttonKey = null;
 
     public function getUrl(): string
@@ -37,11 +44,9 @@ class ButtonTemplateMessage extends TemplateCardMessage
         return $this->url;
     }
 
-    public function setUrl(string $url): static
+    public function setUrl(string $url): void
     {
         $this->url = $url;
-
-        return $this;
     }
 
     public function getButtonText(): string
@@ -49,11 +54,9 @@ class ButtonTemplateMessage extends TemplateCardMessage
         return $this->buttonText;
     }
 
-    public function setButtonText(string $buttonText): static
+    public function setButtonText(string $buttonText): void
     {
         $this->buttonText = $buttonText;
-
-        return $this;
     }
 
     public function getButtonKey(): ?string
@@ -61,16 +64,19 @@ class ButtonTemplateMessage extends TemplateCardMessage
         return $this->buttonKey;
     }
 
-    public function setButtonKey(?string $buttonKey): static
+    public function setButtonKey(?string $buttonKey): void
     {
         $this->buttonKey = $buttonKey;
-
-        return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array
     {
-        $card = parent::toRequestArray()['template_card'];
+        $parentArray = parent::toRequestArray();
+        assert(isset($parentArray['template_card']) && is_array($parentArray['template_card']));
+        $card = $parentArray['template_card'];
 
         $card['horizontal_content_list'] = [
             [
@@ -106,6 +112,9 @@ class ButtonTemplateMessage extends TemplateCardMessage
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function retrieveAdminArray(): array
     {
         return [

@@ -2,77 +2,122 @@
 
 namespace WechatWorkPushBundle\Tests\Entity;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 use Tourze\WechatWorkContracts\AgentInterface;
 use WechatWorkPushBundle\Entity\VoiceMessage;
 
-class VoiceMessageTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(VoiceMessage::class)]
+final class VoiceMessageTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        return new VoiceMessage();
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            // 主要属性
+            'mediaId' => ['mediaId', 'voice_media_20240115_audio_recording.amr'],
+
+            // TimestampableAware traits
+            'createTime' => ['createTime', new \DateTimeImmutable('2024-01-15 14:20:00')],
+            'updateTime' => ['updateTime', new \DateTimeImmutable('2024-01-15 14:25:00')],
+
+            // BlameableAware traits
+            'createdBy' => ['createdBy', 'voice_sender_001'],
+            'updatedBy' => ['updatedBy', 'voice_moderator_002'],
+
+            // IpTraceableAware traits
+            'createdFromIp' => ['createdFromIp', '172.16.1.10'],
+            'updatedFromIp' => ['updatedFromIp', '192.168.100.20'],
+
+            // AgentTrait properties
+            'msgId' => ['msgId', 'msg_voice_20240115_142000_001'],
+            'toUser' => ['toUser', ['sales_team_lead', 'project_manager']],
+            'toParty' => ['toParty', ['sales_dept', 'marketing_dept']],
+            'toTag' => ['toTag', ['meeting_notes', 'voice_memo']],
+
+            // SafeTrait properties
+            'safe' => ['safe', true],
+
+            // DuplicateCheckTrait properties
+            'enableDuplicateCheck' => ['enableDuplicateCheck', false],
+            'duplicateCheckInterval' => ['duplicateCheckInterval', 2400],
+        ];
+    }
+
     private VoiceMessage $voiceMessage;
-    private AgentInterface&MockObject $mockAgent;
+
+    private AgentInterface $mockAgent;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->voiceMessage = new VoiceMessage();
         $this->mockAgent = $this->createMock(AgentInterface::class);
-        $this->mockAgent->expects($this->any())
-            ->method('getAgentId')
-            ->willReturn('1000002');
+        $this->mockAgent->method('getAgentId')->willReturn('1000002');
     }
 
-    public function test_getId_returnsNullInitially(): void
+    public function testGetIdReturnsNullInitially(): void
     {
         $this->assertNull($this->voiceMessage->getId());
     }
 
-    public function test_getMsgType_returnsVoice(): void
+    public function testGetMsgTypeReturnsVoice(): void
     {
         $this->assertEquals('voice', $this->voiceMessage->getMsgType());
     }
 
-    public function test_setMediaId_withValidMediaId(): void
+    public function testSetMediaIdWithValidMediaId(): void
     {
         $mediaId = 'voice_12345678901234567890';
-        $result = $this->voiceMessage->setMediaId($mediaId);
-        
-        $this->assertSame($this->voiceMessage, $result);
+        $this->voiceMessage->setMediaId($mediaId);
+
         $this->assertEquals($mediaId, $this->voiceMessage->getMediaId());
     }
 
-    public function test_setMediaId_withEmptyString(): void
+    public function testSetMediaIdWithEmptyString(): void
     {
         $this->voiceMessage->setMediaId('');
         $this->assertEquals('', $this->voiceMessage->getMediaId());
     }
 
-    public function test_setCreateTime_withDateTime(): void
+    public function testSetCreateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-01 12:00:00');
         $this->voiceMessage->setCreateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->voiceMessage->getCreateTime());
     }
 
-    public function test_setCreateTime_withNull(): void
+    public function testSetCreateTimeWithNull(): void
     {
         $this->voiceMessage->setCreateTime(null);
         $this->assertNull($this->voiceMessage->getCreateTime());
     }
 
-    public function test_setUpdateTime_withDateTime(): void
+    public function testSetUpdateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
         $this->voiceMessage->setUpdateTime($dateTime);
-        
+
         $this->assertEquals($dateTime, $this->voiceMessage->getUpdateTime());
     }
 
-    public function test_toRequestArray_withBasicData(): void
+    public function testToRequestArrayWithBasicData(): void
     {
         $this->voiceMessage->setAgent($this->mockAgent);
         $this->voiceMessage->setMediaId('voice_test123');
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'safe' => 0,
@@ -80,139 +125,137 @@ class VoiceMessageTest extends TestCase
             'duplicate_check_interval' => 1800,
             'msgtype' => 'voice',
             'voice' => [
-                'media_id' => 'voice_test123'
-            ]
+                'media_id' => 'voice_test123',
+            ],
         ];
-        
+
         $this->assertEquals($expectedArray, $this->voiceMessage->toRequestArray());
     }
 
-    public function test_toRequestArray_withToUser(): void
+    public function testToRequestArrayWithToUser(): void
     {
         $this->voiceMessage->setAgent($this->mockAgent);
         $this->voiceMessage->setMediaId('voice_test123');
         $this->voiceMessage->setToUser(['user1', 'user2']);
-        
+
         $result = $this->voiceMessage->toRequestArray();
-        
+
         $this->assertArrayHasKey('touser', $result);
         $this->assertEquals('user1|user2', $result['touser']);
     }
 
-    public function test_toRequestArray_withSafeEnabled(): void
+    public function testToRequestArrayWithSafeEnabled(): void
     {
         $this->voiceMessage->setAgent($this->mockAgent);
         $this->voiceMessage->setMediaId('voice_secret123');
         $this->voiceMessage->setSafe(true);
-        
+
         $result = $this->voiceMessage->toRequestArray();
-        
+
         $this->assertEquals(1, $result['safe']);
     }
 
-    public function test_toRequestArray_withDuplicateCheckEnabled(): void
+    public function testToRequestArrayWithDuplicateCheckEnabled(): void
     {
         $this->voiceMessage->setAgent($this->mockAgent);
         $this->voiceMessage->setMediaId('voice_duplicate123');
         $this->voiceMessage->setEnableDuplicateCheck(true);
         $this->voiceMessage->setDuplicateCheckInterval(3600);
-        
+
         $result = $this->voiceMessage->toRequestArray();
-        
+
         $this->assertEquals(1, $result['enable_duplicate_check']);
         $this->assertEquals(3600, $result['duplicate_check_interval']);
     }
 
-    public function test_userTrackingMethods(): void
+    public function testUserTrackingMethods(): void
     {
         $userId = 'user123';
         $ip = '192.168.1.1';
-        
+
         $this->voiceMessage->setCreatedBy($userId);
         $this->voiceMessage->setUpdatedBy($userId);
         $this->voiceMessage->setCreatedFromIp($ip);
         $this->voiceMessage->setUpdatedFromIp($ip);
-        
+
         $this->assertEquals($userId, $this->voiceMessage->getCreatedBy());
         $this->assertEquals($userId, $this->voiceMessage->getUpdatedBy());
         $this->assertEquals($ip, $this->voiceMessage->getCreatedFromIp());
         $this->assertEquals($ip, $this->voiceMessage->getUpdatedFromIp());
     }
 
-    public function test_setMsgId_withValidMsgId(): void
+    public function testSetMsgIdWithValidMsgId(): void
     {
         $msgId = 'msg_voice_123456';
-        $result = $this->voiceMessage->setMsgId($msgId);
-        
-        $this->assertSame($this->voiceMessage, $result);
+        $this->voiceMessage->setMsgId($msgId);
+
         $this->assertEquals($msgId, $this->voiceMessage->getMsgId());
     }
 
-    public function test_setAgent_withValidAgent(): void
+    public function testSetAgentWithValidAgent(): void
     {
-        $result = $this->voiceMessage->setAgent($this->mockAgent);
-        
-        $this->assertSame($this->voiceMessage, $result);
+        $this->voiceMessage->setAgent($this->mockAgent);
+
         $this->assertSame($this->mockAgent, $this->voiceMessage->getAgent());
     }
 
-    public function test_agentTraitMethods(): void
+    public function testAgentTraitMethods(): void
     {
         $this->voiceMessage->setAgent($this->mockAgent);
         $this->voiceMessage->setToUser(['user1', 'user2']);
         $this->voiceMessage->setToParty(['dept1']);
         $this->voiceMessage->setToTag(['tag1']);
-        
+
         $this->assertSame($this->mockAgent, $this->voiceMessage->getAgent());
         $this->assertEquals(['user1', 'user2'], $this->voiceMessage->getToUser());
         $this->assertEquals(['dept1'], $this->voiceMessage->getToParty());
         $this->assertEquals(['tag1'], $this->voiceMessage->getToTag());
     }
 
-    public function test_edgeCases_longMediaId(): void
+    public function testEdgeCasesLongMediaId(): void
     {
         $longMediaId = str_repeat('v', 99); // 不超过字段长度限制
         $this->voiceMessage->setMediaId($longMediaId);
-        
+
         $this->assertEquals($longMediaId, $this->voiceMessage->getMediaId());
     }
 
-    public function test_edgeCases_specialCharactersInMediaId(): void
+    public function testEdgeCasesSpecialCharactersInMediaId(): void
     {
         $specialMediaId = 'voice_-_123_ABC_xyz.mp3';
         $this->voiceMessage->setMediaId($specialMediaId);
-        
+
         $this->assertEquals($specialMediaId, $this->voiceMessage->getMediaId());
     }
 
-    public function test_toRequestArray_withAllUsers(): void
+    public function testToRequestArrayWithAllUsers(): void
     {
         $this->voiceMessage->setAgent($this->mockAgent);
         $this->voiceMessage->setMediaId('voice_all123');
         $this->voiceMessage->setToUser(['@all']);
         $this->voiceMessage->setToParty(['dept1']);
         $this->voiceMessage->setToTag(['tag1']);
-        
+
         $result = $this->voiceMessage->toRequestArray();
-        
+
         $this->assertEquals('@all', $result['touser']);
         $this->assertArrayNotHasKey('toparty', $result);
         $this->assertArrayNotHasKey('totag', $result);
     }
 
-    public function test_voiceSpecificMediaIds(): void
+    public function testVoiceSpecificMediaIds(): void
     {
         // 测试不同音频格式的 media ID
         $mp3MediaId = 'voice_mp3_123456789.mp3';
         $this->voiceMessage->setMediaId($mp3MediaId);
         $this->assertEquals($mp3MediaId, $this->voiceMessage->getMediaId());
-        
+
         $amrMediaId = 'voice_amr_987654321.amr';
         $this->voiceMessage->setMediaId($amrMediaId);
         $this->assertEquals($amrMediaId, $this->voiceMessage->getMediaId());
     }
 
-    public function test_toRequestArray_withComplexScenario(): void
+    public function testToRequestArrayWithComplexScenario(): void
     {
         $this->voiceMessage->setAgent($this->mockAgent);
         $this->voiceMessage->setMediaId('complex_voice_789');
@@ -221,9 +264,9 @@ class VoiceMessageTest extends TestCase
         $this->voiceMessage->setSafe(true);
         $this->voiceMessage->setEnableDuplicateCheck(true);
         $this->voiceMessage->setDuplicateCheckInterval(7200);
-        
+
         $result = $this->voiceMessage->toRequestArray();
-        
+
         $expectedArray = [
             'agentid' => '1000002',
             'touser' => 'manager1|employee1',
@@ -233,10 +276,10 @@ class VoiceMessageTest extends TestCase
             'duplicate_check_interval' => 7200,
             'msgtype' => 'voice',
             'voice' => [
-                'media_id' => 'complex_voice_789'
-            ]
+                'media_id' => 'complex_voice_789',
+            ],
         ];
-        
+
         $this->assertEquals($expectedArray, $result);
     }
-} 
+}

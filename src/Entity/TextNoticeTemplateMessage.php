@@ -3,6 +3,7 @@
 namespace WechatWorkPushBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use WechatWorkPushBundle\Repository\TextNoticeTemplateMessageRepository;
 
 /**
@@ -17,12 +18,16 @@ class TextNoticeTemplateMessage extends TemplateCardMessage
     /**
      * @var string 点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)
      */
+    #[Assert\NotBlank(message: '跳转链接不能为空')]
+    #[Assert\Url(message: '跳转链接必须是有效的URL')]
+    #[Assert\Length(max: 2048, maxMessage: '跳转链接长度不能超过 {{ limit }} 个字符')]
     #[ORM\Column(length: 2048, options: ['comment' => '跳转链接'])]
     private string $url;
 
     /**
      * @var string|null 底部按钮文字，默认为"详情"
      */
+    #[Assert\Length(max: 64, maxMessage: '底部按钮文字长度不能超过 {{ limit }} 个字符')]
     #[ORM\Column(length: 64, nullable: true, options: ['comment' => '底部按钮文字'])]
     private ?string $btnText = null;
 
@@ -31,11 +36,9 @@ class TextNoticeTemplateMessage extends TemplateCardMessage
         return $this->url;
     }
 
-    public function setUrl(string $url): static
+    public function setUrl(string $url): void
     {
         $this->url = $url;
-
-        return $this;
     }
 
     public function getBtnText(): ?string
@@ -43,16 +46,19 @@ class TextNoticeTemplateMessage extends TemplateCardMessage
         return $this->btnText;
     }
 
-    public function setBtnText(?string $btnText): static
+    public function setBtnText(?string $btnText): void
     {
         $this->btnText = $btnText;
-
-        return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array
     {
-        $card = parent::toRequestArray()['template_card'];
+        $parentArray = parent::toRequestArray();
+        assert(isset($parentArray['template_card']) && is_array($parentArray['template_card']));
+        $card = $parentArray['template_card'];
 
         $card['horizontal_content_list'] = [
             [
@@ -86,6 +92,9 @@ class TextNoticeTemplateMessage extends TemplateCardMessage
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function retrieveAdminArray(): array
     {
         return [

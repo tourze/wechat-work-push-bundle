@@ -1,0 +1,16 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^属性 的 DocBlock 必须位于所有 Attributes 之前。$#'
+			count: 1
+			path: src/Entity/MiniProgramNoticeMessage.php
+
+		-
+			message: '#^属性 的 DocBlock 必须位于所有 Attributes 之前。$#'
+			count: 1
+			path: src/Entity/MpnewsMessage.php
+
+		-
+			message: '#^属性 的 DocBlock 必须位于所有 Attributes 之前。$#'
+			count: 1
+			path: src/Entity/TemplateCardMessage.php

@@ -19,13 +19,18 @@ class SendMessageRequest extends ApiRequest
 
     public function getRequestPath(): string
     {
-        return '/cgi-bin/message/send';
+        return 'cgi-bin/message/send';
     }
 
     public function getRequestOptions(): ?array
     {
+        $agent = $this->getAgent();
+        if (null === $agent) {
+            throw new \RuntimeException('Agent must be set before getting request options');
+        }
+
         $json = [
-            'agentid' => $this->getAgent()->getAgentId(),
+            'agentid' => $agent->getAgentId(),
             ...$this->getMessage()->toRequestArray(),
         ];
 

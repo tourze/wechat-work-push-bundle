@@ -4,7 +4,23 @@ services:
     autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+  WechatWorkPushBundle\Controller\:
+    resource: '../../Controller/'
+    tags: ['controller.service_arguments']
+
+  WechatWorkPushBundle\Service\:
+    resource: '../../Service/'
+
   WechatWorkPushBundle\EventSubscriber\:
     resource: '../../EventSubscriber/'
+
+  WechatWorkPushBundle\EventSubscriber\SendMessageListener:
+    arguments:
+      $environment: '%kernel.environment%'
+
+  WechatWorkPushBundle\EventSubscriber\RevokeMessageListener:
+    arguments:
+      $environment: '%kernel.environment%'
+
   WechatWorkPushBundle\Repository\:
     resource: '../../Repository/'

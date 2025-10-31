@@ -4,9 +4,9 @@ namespace WechatWorkPushBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\Arrayable\AdminArrayInterface;
-use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
-use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
+use Tourze\DoctrineIpBundle\Traits\IpTraceableAware;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
@@ -18,127 +18,87 @@ use WechatWorkPushBundle\Traits\SafeTrait;
 
 /**
  * @see https://developer.work.weixin.qq.com/document/path/96458#图文消息（mpnews）
+ * @implements AdminArrayInterface<string, mixed>
  */
 #[ORM\Entity(repositoryClass: MpnewsMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_mpnews_message', options: ['comment' => '图文消息（mpnews）'])]
-class MpnewsMessage implements
-    AppMessage,
-    AdminArrayInterface,
-    \Stringable
+class MpnewsMessage implements AppMessage, AdminArrayInterface, \Stringable
 {
     use TimestampableAware;
     use BlameableAware;
     use SnowflakeKeyAware;
+    use IpTraceableAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
 
-
-    #[CreateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
-    private ?string $createdFromIp = null;
-
-    #[UpdateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
-    private ?string $updatedFromIp = null;
-
-    /**
-     * @var string 标题，不超过128个字节，超过会自动截断（支持id转译）
-     */
+    #[Assert\Length(max: 128)]
     #[ORM\Column(length: 128, nullable: true, options: ['comment' => '标题'])]
-    private string $title;
+    private ?string $title = null;
 
+    #[Assert\Length(max: 65535)]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '内容'])]
-    private string $content;
+    private ?string $content = null;
 
+    #[Assert\Url]
+    #[Assert\Length(max: 2048)]
     #[ORM\Column(length: 2048, nullable: true, options: ['comment' => '图文消息缩略图的url'])]
-    private string $thumbMediaUrl;
+    private ?string $thumbMediaUrl = null;
 
-    /**
-     * @var string 图文消息缩略图的media_id, 可以通过素材管理接口获得。此处thumb_media_id即上传接口返回的media_id
-     */
+    #[Assert\Length(max: 100)]
     #[ORM\Column(length: 100, nullable: true, options: ['comment' => '图文消息缩略图的media_id'])]
-    private string $thumbMediaId;
+    private ?string $thumbMediaId = null;
 
-    /**
-     * @var ?string 图文消息的描述，不超过512个字节，超过会自动截断（支持id转译）
-     */
+    #[Assert\Length(max: 512)]
     #[ORM\Column(length: 512, nullable: true, options: ['comment' => '描述'])]
     private ?string $digest = null;
 
-    /**
-     * @var ?string 图文消息点击“阅读原文”之后的页面链接
-     */
-    #[ORM\Column(length: 2048, nullable: true, options: ['comment' => '点击“阅读原文”之后的页面链接'])]
+    #[Assert\Url]
+    #[Assert\Length(max: 2048)]
+    #[ORM\Column(length: 2048, nullable: true, options: ['comment' => '点击"阅读原文"之后的页面链接'])]
     private ?string $contentSourceUrl = null;
-
-
-
-    public function setCreatedFromIp(?string $createdFromIp): self
-    {
-        $this->createdFromIp = $createdFromIp;
-
-        return $this;
-    }
-
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setUpdatedFromIp(?string $updatedFromIp): self
-    {
-        $this->updatedFromIp = $updatedFromIp;
-
-        return $this;
-    }
-
-    public function getUpdatedFromIp(): ?string
-    {
-        return $this->updatedFromIp;
-    }
 
     public function getMsgType(): string
     {
         return 'mpnews';
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
     }
 
-    public function getContent(): string
+    public function getContent(): ?string
     {
         return $this->content;
     }
 
-    public function setContent(string $content): void
+    public function setContent(?string $content): void
     {
         $this->content = $content;
     }
 
-    public function getThumbMediaUrl(): string
+    public function getThumbMediaUrl(): ?string
     {
         return $this->thumbMediaUrl;
     }
 
-    public function setThumbMediaUrl(string $thumbMediaUrl): void
+    public function setThumbMediaUrl(?string $thumbMediaUrl): void
     {
         $this->thumbMediaUrl = $thumbMediaUrl;
     }
 
-    public function getThumbMediaId(): string
+    public function getThumbMediaId(): ?string
     {
         return $this->thumbMediaId;
     }
 
-    public function setThumbMediaId(string $thumbMediaId): void
+    public function setThumbMediaId(?string $thumbMediaId): void
     {
         $this->thumbMediaId = $thumbMediaId;
     }
@@ -162,12 +122,16 @@ class MpnewsMessage implements
     {
         $this->contentSourceUrl = $contentSourceUrl;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array
     {
         $articles = [
-            'title' => $this->getTitle(),
-            'content' => $this->getContent(),
-            'thumb_media_id' => $this->getThumbMediaId(),
+            'title' => $this->getTitle() ?? '',
+            'content' => $this->getContent() ?? '',
+            'thumb_media_id' => $this->getThumbMediaId() ?? '',
         ];
         if (null !== $this->getDigest()) {
             $articles['digest'] = $this->getDigest();
@@ -187,13 +151,16 @@ class MpnewsMessage implements
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function retrieveAdminArray(): array
     {
         return [
             'id' => $this->getId(),
-            'title' => $this->getTitle(),
-            'content' => $this->getContent(),
-            'thumbMediaUrl' => $this->getThumbMediaUrl(),
+            'title' => $this->getTitle() ?? '',
+            'content' => $this->getContent() ?? '',
+            'thumbMediaUrl' => $this->getThumbMediaUrl() ?? '',
             'digest' => $this->getDigest(),
             'contentSourceUrl' => $this->getContentSourceUrl(),
             'createTime' => $this->getCreateTime()?->format('Y-m-d H:i:s'),

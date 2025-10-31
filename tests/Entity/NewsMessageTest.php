@@ -2,36 +2,74 @@
 
 namespace WechatWorkPushBundle\Tests\Entity;
 
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 use Tourze\WechatWorkContracts\AgentInterface;
 use WechatWorkPushBundle\Entity\NewsMessage;
 
-class NewsMessageTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(NewsMessage::class)]
+final class NewsMessageTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        return new NewsMessage();
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            'title' => ['title', '测试新闻标题'],
+            'description' => ['description', '这是一条测试新闻的详细描述内容'],
+            'url' => ['url', 'https://example.com/news/detail/123'],
+            'picUrl' => ['picUrl', 'https://example.com/images/news.jpg'],
+            'appId' => ['appId', 'wx1234567890abcdef'],
+            'pagePath' => ['pagePath', 'pages/news/detail'],
+            'createTime' => ['createTime', new \DateTimeImmutable('2024-01-01 10:00:00')],
+            'updateTime' => ['updateTime', new \DateTimeImmutable('2024-01-01 11:00:00')],
+            'createdBy' => ['createdBy', 'user123'],
+            'updatedBy' => ['updatedBy', 'user456'],
+            'createdFromIp' => ['createdFromIp', '192.168.1.100'],
+            'updatedFromIp' => ['updatedFromIp', '192.168.1.101'],
+            'msgId' => ['msgId', 'msg_news_20240101_001'],
+            'toUser' => ['toUser', ['user1', 'user2', 'user3']],
+            'toParty' => ['toParty', ['dept1', 'dept2']],
+            'toTag' => ['toTag', ['tag1', 'tag2']],
+            'safe' => ['safe', true],
+            'enableDuplicateCheck' => ['enableDuplicateCheck', true],
+            'duplicateCheckInterval' => ['duplicateCheckInterval', 3600],
+        ];
+    }
+
     private NewsMessage $newsMessage;
-    private AgentInterface&MockObject $mockAgent;
+
+    private AgentInterface $mockAgent;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->newsMessage = new NewsMessage();
         $this->mockAgent = $this->createMock(AgentInterface::class);
-        $this->mockAgent->expects($this->any())
-            ->method('getAgentId')
-            ->willReturn('1000002');
+        $this->mockAgent->method('getAgentId')->willReturn('1000002');
     }
 
-    public function test_getId_returnsNullInitially(): void
+    public function testGetIdReturnsNullInitially(): void
     {
         $this->assertNull($this->newsMessage->getId());
     }
 
-    public function test_getMsgType_returnsNews(): void
+    public function testGetMsgTypeReturnsNews(): void
     {
         $this->assertEquals('news', $this->newsMessage->getMsgType());
     }
 
-    public function test_setTitle_withValidTitle(): void
+    public function testSetTitleWithValidTitle(): void
     {
         $title = '这是新闻标题';
         $this->newsMessage->setTitle($title);
@@ -39,7 +77,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($title, $this->newsMessage->getTitle());
     }
 
-    public function test_setTitle_withMaxLength(): void
+    public function testSetTitleWithMaxLength(): void
     {
         $title = str_repeat('标', 64); // 最大长度128字节，每个中文字符2字节
         $this->newsMessage->setTitle($title);
@@ -47,7 +85,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($title, $this->newsMessage->getTitle());
     }
 
-    public function test_setDescription_withValidDescription(): void
+    public function testSetDescriptionWithValidDescription(): void
     {
         $description = '这是新闻描述内容';
         $this->newsMessage->setDescription($description);
@@ -55,13 +93,13 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($description, $this->newsMessage->getDescription());
     }
 
-    public function test_setDescription_withNull(): void
+    public function testSetDescriptionWithNull(): void
     {
         $this->newsMessage->setDescription(null);
         $this->assertNull($this->newsMessage->getDescription());
     }
 
-    public function test_setDescription_withMaxLength(): void
+    public function testSetDescriptionWithMaxLength(): void
     {
         $description = str_repeat('描', 256); // 最大长度512字节
         $this->newsMessage->setDescription($description);
@@ -69,7 +107,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($description, $this->newsMessage->getDescription());
     }
 
-    public function test_setUrl_withValidUrl(): void
+    public function testSetUrlWithValidUrl(): void
     {
         $url = 'https://example.com/news/123';
         $this->newsMessage->setUrl($url);
@@ -77,13 +115,13 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($url, $this->newsMessage->getUrl());
     }
 
-    public function test_setUrl_withNull(): void
+    public function testSetUrlWithNull(): void
     {
         $this->newsMessage->setUrl(null);
         $this->assertNull($this->newsMessage->getUrl());
     }
 
-    public function test_setUrl_withMaxLength(): void
+    public function testSetUrlWithMaxLength(): void
     {
         $url = 'https://example.com/' . str_repeat('path/', 100);
         $this->newsMessage->setUrl($url);
@@ -91,7 +129,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($url, $this->newsMessage->getUrl());
     }
 
-    public function test_setPicUrl_withValidUrl(): void
+    public function testSetPicUrlWithValidUrl(): void
     {
         $picUrl = 'https://example.com/image.jpg';
         $this->newsMessage->setPicUrl($picUrl);
@@ -99,13 +137,13 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($picUrl, $this->newsMessage->getPicUrl());
     }
 
-    public function test_setPicUrl_withNull(): void
+    public function testSetPicUrlWithNull(): void
     {
         $this->newsMessage->setPicUrl(null);
         $this->assertNull($this->newsMessage->getPicUrl());
     }
 
-    public function test_setAppId_withValidAppId(): void
+    public function testSetAppIdWithValidAppId(): void
     {
         $appId = 'wx123456789abcdef';
         $this->newsMessage->setAppId($appId);
@@ -113,13 +151,13 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($appId, $this->newsMessage->getAppId());
     }
 
-    public function test_setAppId_withNull(): void
+    public function testSetAppIdWithNull(): void
     {
         $this->newsMessage->setAppId(null);
         $this->assertNull($this->newsMessage->getAppId());
     }
 
-    public function test_setPagePath_withValidPath(): void
+    public function testSetPagePathWithValidPath(): void
     {
         $pagePath = 'pages/index/index';
         $this->newsMessage->setPagePath($pagePath);
@@ -127,13 +165,13 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($pagePath, $this->newsMessage->getPagePath());
     }
 
-    public function test_setPagePath_withNull(): void
+    public function testSetPagePathWithNull(): void
     {
         $this->newsMessage->setPagePath(null);
         $this->assertNull($this->newsMessage->getPagePath());
     }
 
-    public function test_setCreateTime_withDateTime(): void
+    public function testSetCreateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-01 12:00:00');
         $this->newsMessage->setCreateTime($dateTime);
@@ -141,7 +179,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($dateTime, $this->newsMessage->getCreateTime());
     }
 
-    public function test_setUpdateTime_withDateTime(): void
+    public function testSetUpdateTimeWithDateTime(): void
     {
         $dateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
         $this->newsMessage->setUpdateTime($dateTime);
@@ -149,7 +187,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($dateTime, $this->newsMessage->getUpdateTime());
     }
 
-    public function test_toRequestArray_withBasicData(): void
+    public function testToRequestArrayWithBasicData(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Test News');
@@ -163,16 +201,16 @@ class NewsMessageTest extends TestCase
             'news' => [
                 'articles' => [
                     [
-                        'title' => 'Test News'
-                    ]
-                ]
-            ]
+                        'title' => 'Test News',
+                    ],
+                ],
+            ],
         ];
 
         $this->assertEquals($expectedArray, $this->newsMessage->toRequestArray());
     }
 
-    public function test_toRequestArray_withAllFields(): void
+    public function testToRequestArrayWithAllFields(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Complete News');
@@ -192,16 +230,16 @@ class NewsMessageTest extends TestCase
                         'title' => 'Complete News',
                         'description' => 'News description',
                         'url' => 'https://example.com/news',
-                        'picurl' => 'https://example.com/pic.jpg'
-                    ]
-                ]
-            ]
+                        'picurl' => 'https://example.com/pic.jpg',
+                    ],
+                ],
+            ],
         ];
 
         $this->assertEquals($expectedArray, $this->newsMessage->toRequestArray());
     }
 
-    public function test_toRequestArray_withMiniProgramFields(): void
+    public function testToRequestArrayWithMiniProgramFields(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Mini Program News');
@@ -219,16 +257,16 @@ class NewsMessageTest extends TestCase
                     [
                         'title' => 'Mini Program News',
                         'appid' => 'wx123456789',
-                        'pagepath' => 'pages/news/detail'
-                    ]
-                ]
-            ]
+                        'pagepath' => 'pages/news/detail',
+                    ],
+                ],
+            ],
         ];
 
         $this->assertEquals($expectedArray, $this->newsMessage->toRequestArray());
     }
 
-    public function test_toRequestArray_withToUser(): void
+    public function testToRequestArrayWithToUser(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('User News');
@@ -240,7 +278,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals('user1|user2', $result['touser']);
     }
 
-    public function test_toRequestArray_withSafeEnabled(): void
+    public function testToRequestArrayWithSafeEnabled(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Secret News');
@@ -251,7 +289,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals(1, $result['safe']);
     }
 
-    public function test_retrieveAdminArray_withCompleteData(): void
+    public function testRetrieveAdminArrayWithCompleteData(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Admin News');
@@ -276,13 +314,13 @@ class NewsMessageTest extends TestCase
             'pagePath' => 'pages/admin',
             'createTime' => '2024-01-01 10:00:00',
             'updateTime' => '2024-01-01 11:00:00',
-            'agentid' => '1000002'
+            'agentid' => '1000002',
         ];
 
         $this->assertEquals($expectedArray, $this->newsMessage->retrieveAdminArray());
     }
 
-    public function test_retrieveAdminArray_withMinimalData(): void
+    public function testRetrieveAdminArrayWithMinimalData(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setTitle('Minimal News');
@@ -299,7 +337,7 @@ class NewsMessageTest extends TestCase
         $this->assertNull($result['updateTime']);
     }
 
-    public function test_userTrackingMethods(): void
+    public function testUserTrackingMethods(): void
     {
         $userId = 'user123';
         $ip = '192.168.1.1';
@@ -315,7 +353,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals($ip, $this->newsMessage->getUpdatedFromIp());
     }
 
-    public function test_edgeCases_emptyStrings(): void
+    public function testEdgeCasesEmptyStrings(): void
     {
         $this->newsMessage->setTitle('');
         $this->newsMessage->setDescription('');
@@ -326,7 +364,7 @@ class NewsMessageTest extends TestCase
         $this->assertEquals('', $this->newsMessage->getUrl());
     }
 
-    public function test_agentTraitMethods(): void
+    public function testAgentTraitMethods(): void
     {
         $this->newsMessage->setAgent($this->mockAgent);
         $this->newsMessage->setToUser(['user1', 'user2']);
@@ -339,12 +377,11 @@ class NewsMessageTest extends TestCase
         $this->assertEquals(['tag1'], $this->newsMessage->getToTag());
     }
 
-    public function test_msgIdMethods(): void
+    public function testMsgIdMethods(): void
     {
         $msgId = 'msg_news_123456';
-        $result = $this->newsMessage->setMsgId($msgId);
+        $this->newsMessage->setMsgId($msgId);
 
-        $this->assertSame($this->newsMessage, $result);
         $this->assertEquals($msgId, $this->newsMessage->getMsgId());
     }
 }

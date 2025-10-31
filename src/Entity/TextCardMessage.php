@@ -2,10 +2,9 @@
 
 namespace WechatWorkPushBundle\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
-use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
+use Symfony\Component\Validator\Constraints as Assert;
+use Tourze\DoctrineIpBundle\Traits\IpTraceableAware;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
@@ -20,43 +19,39 @@ use WechatWorkPushBundle\Traits\IdTransTrait;
  */
 #[ORM\Entity(repositoryClass: TextCardMessageRepository::class)]
 #[ORM\Table(name: 'wechat_work_push_text_card_message', options: ['comment' => '文本卡片消息'])]
-class TextCardMessage implements
-    AppMessage,
-    \Stringable
+class TextCardMessage implements AppMessage, \Stringable
 {
     use TimestampableAware;
     use BlameableAware;
     use SnowflakeKeyAware;
+    use IpTraceableAware;
     use AgentTrait;
     use IdTransTrait;
     use DuplicateCheckTrait;
 
-
     #[ORM\Column(length: 128, options: ['comment' => '标题'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 128)]
     private string $title;
 
     #[ORM\Column(length: 512, options: ['comment' => '描述'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 512)]
     private string $description;
 
     /**
      * @var string 点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)
      */
     #[ORM\Column(length: 2048, options: ['comment' => '点击后跳转的链接'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 2048)]
+    #[Assert\Url]
     private string $url;
 
     #[ORM\Column(length: 4, options: ['comment' => '按钮文字'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 4)]
     private string $btnText = '详情';
-
-
-
-    #[CreateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
-    private ?string $createdFromIp = null;
-
-    #[UpdateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
-    private ?string $updatedFromIp = null;
-
 
     public function getMsgType(): string
     {
@@ -103,32 +98,9 @@ class TextCardMessage implements
         $this->btnText = $btnText;
     }
 
-
-
-    public function setCreatedFromIp(?string $createdFromIp): self
-    {
-        $this->createdFromIp = $createdFromIp;
-
-        return $this;
-    }
-
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setUpdatedFromIp(?string $updatedFromIp): self
-    {
-        $this->updatedFromIp = $updatedFromIp;
-
-        return $this;
-    }
-
-    public function getUpdatedFromIp(): ?string
-    {
-        return $this->updatedFromIp;
-    }
-
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array
     {
         $textcard = [
@@ -136,7 +108,7 @@ class TextCardMessage implements
             'description' => $this->getDescription(),
             'url' => $this->getUrl(),
         ];
-        if (!empty($this->getBtnText())) {
+        if ('' !== $this->getBtnText()) {
             $textcard['btntxt'] = $this->getBtnText();
         }
 

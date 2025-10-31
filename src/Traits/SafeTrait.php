@@ -6,9 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait SafeTrait
 {
-    /**
-     * @var bool|null 0表示可对外分享，1表示不能分享且内容显示水印
-     */
     #[ORM\Column(nullable: true, options: ['comment' => '是否是保密消息'])]
     private ?bool $safe = false;
 
@@ -17,17 +14,23 @@ trait SafeTrait
         return $this->safe;
     }
 
-    public function setSafe(?bool $safe): static
+    public function setSafe(?bool $safe): void
     {
         $this->safe = $safe;
-
-        return $this;
     }
 
+    public function getSafe(): ?bool
+    {
+        return $this->safe;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function getSafeArray(): array
     {
         return [
-            'safe' => $this->safe ? 1 : 0,
+            'safe' => true === $this->safe ? 1 : 0,
         ];
     }
 }

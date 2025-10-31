@@ -13,9 +13,12 @@ interface AppMessage
 
     public function getMsgId(): ?string;
 
-    public function setMsgId(?string $msgId): static;
+    public function setMsgId(?string $msgId): void;
 
     public function getAgent(): ?AgentInterface;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array;
 }

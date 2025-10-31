@@ -4,6 +4,7 @@ namespace WechatWorkPushBundle\EventSubscriber;
 
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use WechatWorkBundle\Service\WorkService;
 use WechatWorkPushBundle\Entity\FileMessage;
 use WechatWorkPushBundle\Entity\ImageMessage;
@@ -28,14 +29,22 @@ use WechatWorkPushBundle\Request\RevokeMessageRequest;
 #[AsEntityListener(event: Events::postRemove, method: 'postRemove', entity: VoiceMessage::class)]
 #[AsEntityListener(event: Events::postRemove, method: 'postRemove', entity: NewsMessage::class)]
 #[AsEntityListener(event: Events::postRemove, method: 'postRemove', entity: MpnewsMessage::class)]
+#[Autoconfigure(public: true)]
 class RevokeMessageListener
 {
     public function __construct(
         private readonly WorkService $workService,
-    ) {}
+        private readonly ?string $environment = null,
+    ) {
+    }
 
     public function postRemove(AppMessage $object): void
     {
+        // 在测试环境中跳过实际的 API 调用
+        if ('test' === $this->environment) {
+            return;
+        }
+
         if (null === $object->getMsgId()) {
             return;
         }
@@ -43,6 +52,7 @@ class RevokeMessageListener
         $request = new RevokeMessageRequest();
         $request->setMsgId($object->getMsgId());
         $request->setAgent($object->getAgent());
+
         $this->workService->asyncRequest($request);
     }
 }

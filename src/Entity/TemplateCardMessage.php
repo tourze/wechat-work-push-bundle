@@ -2,15 +2,11 @@
 
 namespace WechatWorkPushBundle\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\Arrayable\AdminArrayInterface;
-use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
-use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
+use Tourze\DoctrineIpBundle\Traits\IpTraceableAware;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
-use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatWorkPushBundle\Model\AppMessage;
 use WechatWorkPushBundle\Traits\AgentTrait;
@@ -21,6 +17,7 @@ use WechatWorkPushBundle\Traits\SafeTrait;
  * 模板卡片消息基类
  *
  * @see https://developer.work.weixin.qq.com/document/path/96458
+ * @implements AdminArrayInterface<string, mixed>
  */
 #[ORM\MappedSuperclass]
 abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
@@ -28,45 +25,19 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
     use TimestampableAware;
     use BlameableAware;
     use SnowflakeKeyAware;
+    use IpTraceableAware;
     use AgentTrait;
     use SafeTrait;
     use DuplicateCheckTrait;
 
-    /**
-     * @var string 标题，不超过128个字节，超过会自动截断
-     */
-    #[ORM\Column(length: 128, options: ['comment' => '标题'])]
+    #[ORM\Column(length: 128, options: ['comment' => '标题，不超过128个字节，超过会自动截断'])]
     protected string $title;
 
-    /**
-     * @var string 描述，不超过512个字节，超过会自动截断
-     */
-    #[ORM\Column(length: 512, options: ['comment' => '描述'])]
+    #[ORM\Column(length: 512, options: ['comment' => '描述，不超过512个字节，超过会自动截断'])]
     protected string $description;
 
-    /**
-     * @var string|null 任务id，同一个应用发送的任务id不能重复，只能由数字、字母和"_-@"组成，最长128字节
-     */
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '任务id'])]
+    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '任务id，同一个应用发送的任务id不能重复，只能由数字、字母和"_-@"组成，最长128字节'])]
     protected ?string $taskId = null;
-
-
-    #[CreatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
-    private ?string $createdBy = null;
-
-    #[UpdatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '更新人'])]
-    private ?string $updatedBy = null;
-
-    #[CreateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
-    private ?string $createdFromIp = null;
-
-    #[UpdateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
-    private ?string $updatedFromIp = null;
-
 
     public function getMsgType(): string
     {
@@ -78,11 +49,9 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(string $title): void
     {
         $this->title = $title;
-
-        return $this;
     }
 
     public function getDescription(): string
@@ -90,11 +59,9 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(string $description): void
     {
         $this->description = $description;
-
-        return $this;
     }
 
     public function getTaskId(): ?string
@@ -102,61 +69,14 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
         return $this->taskId;
     }
 
-    public function setTaskId(?string $taskId): static
+    public function setTaskId(?string $taskId): void
     {
         $this->taskId = $taskId;
-
-        return $this;
     }
 
-    public function setCreatedBy(?string $createdBy): self
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    public function getCreatedBy(): ?string
-    {
-        return $this->createdBy;
-    }
-
-    public function setUpdatedBy(?string $updatedBy): self
-    {
-        $this->updatedBy = $updatedBy;
-
-        return $this;
-    }
-
-    public function getUpdatedBy(): ?string
-    {
-        return $this->updatedBy;
-    }
-
-    public function setCreatedFromIp(?string $createdFromIp): self
-    {
-        $this->createdFromIp = $createdFromIp;
-
-        return $this;
-    }
-
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setUpdatedFromIp(?string $updatedFromIp): self
-    {
-        $this->updatedFromIp = $updatedFromIp;
-
-        return $this;
-    }
-
-    public function getUpdatedFromIp(): ?string
-    {
-        return $this->updatedFromIp;
-    }
-
+    /**
+     * @return array<string, mixed>
+     */
     public function toRequestArray(): array
     {
         $card = [
@@ -183,6 +103,9 @@ abstract class TemplateCardMessage implements AppMessage, AdminArrayInterface
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function retrieveAdminArray(): array
     {
         return [

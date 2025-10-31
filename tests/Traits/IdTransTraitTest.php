@@ -2,140 +2,134 @@
 
 namespace WechatWorkPushBundle\Tests\Traits;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WechatWorkPushBundle\Traits\IdTransTrait;
 
-class IdTransTraitTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(IdTransTrait::class)]
+final class IdTransTraitTest extends TestCase
 {
-    private IdTransTraitTestClass $testObject;
+    private TestIdTransEntity $testObject;
 
     protected function setUp(): void
     {
-        $this->testObject = new IdTransTraitTestClass();
+        parent::setUp();
+        $this->testObject = new TestIdTransEntity();
     }
 
-    public function test_setEnableIdTrans_withTrue(): void
+    public function testSetEnableIdTransWithTrue(): void
     {
-        $result = $this->testObject->setEnableIdTrans(true);
-        
-        $this->assertSame($this->testObject, $result);
+        $this->testObject->setEnableIdTrans(true);
+
         $this->assertTrue($this->testObject->isEnableIdTrans());
     }
 
-    public function test_setEnableIdTrans_withFalse(): void
+    public function testSetEnableIdTransWithFalse(): void
     {
-        $result = $this->testObject->setEnableIdTrans(false);
-        
-        $this->assertSame($this->testObject, $result);
+        $this->testObject->setEnableIdTrans(false);
+
         $this->assertFalse($this->testObject->isEnableIdTrans());
     }
 
-    public function test_setEnableIdTrans_withNull(): void
+    public function testSetEnableIdTransWithNull(): void
     {
         $this->testObject->setEnableIdTrans(null);
         $this->assertNull($this->testObject->isEnableIdTrans());
     }
 
-    public function test_getIdTransArray_withTrue(): void
+    public function testGetIdTransArrayWithTrue(): void
     {
         $this->testObject->setEnableIdTrans(true);
-        
+
         $expectedArray = [
-            'enable_id_trans' => 1
+            'enable_id_trans' => 1,
         ];
-        
+
         $this->assertEquals($expectedArray, $this->testObject->getIdTransArray());
     }
 
-    public function test_getIdTransArray_withFalse(): void
+    public function testGetIdTransArrayWithFalse(): void
     {
         $this->testObject->setEnableIdTrans(false);
-        
+
         $expectedArray = [
-            'enable_id_trans' => 0
+            'enable_id_trans' => 0,
         ];
-        
+
         $this->assertEquals($expectedArray, $this->testObject->getIdTransArray());
     }
 
-    public function test_getIdTransArray_withNull(): void
+    public function testGetIdTransArrayWithNull(): void
     {
         $this->testObject->setEnableIdTrans(null);
-        
+
         $expectedArray = [
-            'enable_id_trans' => 0
+            'enable_id_trans' => 0,
         ];
-        
+
         $this->assertEquals($expectedArray, $this->testObject->getIdTransArray());
     }
 
-    public function test_getIdTransArray_withDefaultValue(): void
+    public function testGetIdTransArrayWithDefaultValue(): void
     {
         // 测试默认值（应该是 false）
         $expectedArray = [
-            'enable_id_trans' => 0
+            'enable_id_trans' => 0,
         ];
-        
+
         $this->assertEquals($expectedArray, $this->testObject->getIdTransArray());
     }
 
-    public function test_edgeCases_toggleIdTransValue(): void
+    public function testEdgeCasesToggleIdTransValue(): void
     {
         // 测试多次切换 ID 转换值
         $this->testObject->setEnableIdTrans(true);
         $this->assertTrue($this->testObject->isEnableIdTrans());
-        
+
         $this->testObject->setEnableIdTrans(false);
         $this->assertFalse($this->testObject->isEnableIdTrans());
-        
+
         $this->testObject->setEnableIdTrans(true);
         $this->assertTrue($this->testObject->isEnableIdTrans());
     }
 
-    public function test_fluentInterface(): void
+    public function testFluentInterface(): void
     {
         // 测试流畅接口
-        $result = $this->testObject
-            ->setEnableIdTrans(true)
-            ->setEnableIdTrans(false)
-            ->setEnableIdTrans(true);
-        
-        $this->assertSame($this->testObject, $result);
+        $this->testObject->setEnableIdTrans(true);
+        $this->testObject->setEnableIdTrans(false);
+        $this->testObject->setEnableIdTrans(true);
+
         $this->assertTrue($this->testObject->isEnableIdTrans());
     }
 
-    public function test_initialState(): void
+    public function testInitialState(): void
     {
         // 测试初始状态
         $this->assertFalse($this->testObject->isEnableIdTrans());
     }
 
-    public function test_nullToFalseConversion(): void
+    public function testNullToFalseConversion(): void
     {
         // 测试 null 值被正确转换为 false
         $this->testObject->setEnableIdTrans(null);
         $result = $this->testObject->getIdTransArray();
-        
+
         $this->assertEquals(0, $result['enable_id_trans']);
     }
 
-    public function test_booleanConversion(): void
+    public function testBooleanConversion(): void
     {
         // 测试布尔值正确转换为整数
         $this->testObject->setEnableIdTrans(true);
         $result = $this->testObject->getIdTransArray();
         $this->assertEquals(1, $result['enable_id_trans']);
-        
+
         $this->testObject->setEnableIdTrans(false);
         $result = $this->testObject->getIdTransArray();
         $this->assertEquals(0, $result['enable_id_trans']);
     }
 }
-
-/**
- * 用于测试 IdTransTrait 的具体实现类
- */
-class IdTransTraitTestClass
-{
-    use IdTransTrait;
-} 
